@@ -2,6 +2,7 @@
 
 #include <glm/ext.hpp>
 #include <cmath>
+#include <random>
 
 SceneEntity::SceneEntity(Model* model, aie::Texture* texture, Shader* shader, float scaleFactor)
 	: m_model(model), m_shader(shader), m_scaleFactor(scaleFactor), m_timestep(0.0f)
@@ -27,6 +28,7 @@ const glm::mat4& SceneEntity::GetTransform() {
 		transform = glm::scale(transform, glm::vec3(m_scaleFactor));
 
 		m_transform = transform;
+		m_transformNeedsUpdate = false;
 	}
 
 	return m_transform;
@@ -35,6 +37,9 @@ const glm::mat4& SceneEntity::GetTransform() {
 
 void SceneEntity::Update(float deltaTime) {
 	m_timestep += deltaTime;
+
+	m_rotation *= glm::quat(glm::vec3(deltaTime/2.f,0,0));
+	m_transformNeedsUpdate = true;
 
 	auto skelCount = m_model->m_fbx->getSkeletonCount();
 	for (int i = 0; i < skelCount; ++i) {

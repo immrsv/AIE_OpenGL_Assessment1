@@ -10,10 +10,10 @@ class SceneEntity
 public:
 
 	struct {
-		aie::Texture* diffuse;
-		aie::Texture* normal;
-		aie::Texture* specular;
-		aie::Texture* gloss;
+		aie::Texture* diffuse = 0;
+		aie::Texture* normal = 0;
+		aie::Texture* specular = 0;
+		aie::Texture* glow = 0;
 	} m_textures;
 
 	SceneEntity(Model* model, aie::Texture* texture, Shader* shader, float scaleFactor);

@@ -122,5 +122,14 @@
     <None Include="Rigging.frag">
       <Filter>Shader Files</Filter>
     </None>
+    <None Include="PhongMaps.frag">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="PBRMaps.frag">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="NmapRigged.vert">
+      <Filter>Shader Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

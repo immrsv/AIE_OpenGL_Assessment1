@@ -32,24 +32,40 @@ void Scene::Start() {
 
 	m_camera.setViewFor(vec3(0, 10, -10), 90.f, -45.f);
 
+	m_ambientLight = vec3(0.05);
+
 	// Load Shaders
 	Shader::CompileShaders("DefaultShader", "../Project3D/Basic.vert", "../Project3D/Basic.frag");
 	//Shader::CompileShaders("LightedShader", "../Project3D/Lighted.vert", "../Project3D/Lighted.frag");
 	//Shader::CompileShaders("TexturedShader", "../Project3D/Textured.vert", "../Project3D/Textured.frag");
 	//Shader::CompileShaders("MorphingShader", "../Project3D/Morphing.vert", "../Project3D/Morphing.frag");
 	Shader::CompileShaders("RiggingShader", "../Project3D/Rigging.vert", "../Project3D/Rigging.frag");
+	Shader::CompileShaders("NmappedRiggedPhong", "../Project3D/NmapRigged.vert", "../Project3D/PhongMaps.frag");
 
 	// Load Textures
 	CacheTexture("./textures/numbered_grid.tga");
 
+	CacheTexture("./models/DarkSiderGun/Gun_A.tga");
+	CacheTexture("./models/DarkSiderGun/Gun_D.tga");
+	CacheTexture("./models/DarkSiderGun/Gun_N_1.tga");
+	CacheTexture("./models/DarkSiderGun/Gun_S.tga");
+
 	// Load Models
-	CacheModel("./models/stanford/bunny.obj");
-	CacheModel("./models/Pyro/pyro.fbx");
+	//CacheModel("./models/stanford/bunny.obj");
+	//CacheModel("./models/Pyro/pyro.fbx");
+	CacheModel("./models/DarkSiderGun/GUN.fbx");
 
 
 	// Make Entities
+	SceneEntity* entity;
+
 	//CreateEntity("./models/stanford/bunny.obj", "./textures/numbered_grid.tga", "DefaultShader", 1.0f);
-	CreateEntity("./models/Pyro/pyro.fbx", "./textures/numbered_grid.tga", "RiggingShader", 0.01f);
+	//entity = CreateEntity("./models/Pyro/pyro.fbx", "./textures/numbered_grid.tga", "RiggingShader", 0.01f);
+	entity = CreateEntity("./models/DarkSiderGun/GUN.fbx", "./models/DarkSiderGun/Gun_D.tga", "NmappedRiggedPhong", 0.5f);
+
+	entity->m_textures.normal = _TextureCache["./models/DarkSiderGun/Gun_N_1.tga"];
+	entity->m_textures.specular = _TextureCache["./models/DarkSiderGun/Gun_S.tga"];
+	entity->m_textures.glow = _TextureCache["./models/DarkSiderGun/Gun_A.tga"];
 
 	// Setup Lighting
 
@@ -65,7 +81,7 @@ void Scene::Update(float deltaTime) {
 	m_camera.update(deltaTime);
 }
 
-void Scene::Draw() {
+void Scene::Draw( ) {
 	
 	for (auto entity : _Entities) {
 
@@ -73,13 +89,18 @@ void Scene::Draw() {
 		// Bind Shader
 		entity->m_shader->MakeActive();
 
+
 		entity->m_shader->SetMat4("pvmMatrix", glm::value_ptr(m_camera.getTransform() * entity->GetTransform()));
 		entity->m_shader->SetMat4("modelMatrix", glm::value_ptr(entity->GetTransform()));
 		entity->m_shader->SetMat4("pvmMatrix", glm::value_ptr(m_camera.getTransform() * entity->GetTransform()));
 
 		entity->m_shader->SetVec3("cameraPos", glm::value_ptr(m_camera.getPosition()));
+		entity->m_shader->SetVec3("ambient", glm::value_ptr(m_ambientLight));
 
-		entity->m_shader->SetTexture("diffuseTex", 0, entity->m_textures.diffuse->getHandle());
+		if (entity->m_textures.diffuse) entity->m_shader->SetTexture("diffuseTex", 0, entity->m_textures.diffuse->getHandle());
+		if (entity->m_textures.specular) entity->m_shader->SetTexture("specularTex", 1, entity->m_textures.specular->getHandle());
+		if (entity->m_textures.normal) entity->m_shader->SetTexture("normalTex", 2, entity->m_textures.normal->getHandle());
+		//if (entity->m_textures.diffuse) entity->m_shader->SetTexture("diffuseTex", 0, entity->m_textures.diffuse->getHandle());
 
 		auto skelCount = entity->m_model->m_fbx->getSkeletonCount();
 		for (unsigned int i = 0; i < skelCount; ++i ) {

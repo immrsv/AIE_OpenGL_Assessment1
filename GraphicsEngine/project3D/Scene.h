@@ -41,7 +41,7 @@ public:
 
 	Camera m_camera;
 
-	glm::vec3 v3_ambientLight;
+	glm::vec3 m_ambientLight;
 	
 
 private:

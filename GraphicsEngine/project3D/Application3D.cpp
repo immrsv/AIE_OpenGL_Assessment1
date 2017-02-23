@@ -101,7 +101,7 @@ void Application3D::draw() {
 		getWindowWidth() / (float)getWindowHeight(),
 		0.1f, 1000.f));
 
-	Gizmos::draw(Scene::Instance()->m_camera.getTransform());
+	//Gizmos::draw(Scene::Instance()->m_camera.getTransform());
 
 	Scene::Instance()->Draw();
 }
