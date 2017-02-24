@@ -52,7 +52,7 @@ void Scene::Start() {
 
 	// Load Models
 	//CacheModel("./models/stanford/bunny.obj");
-	//CacheModel("./models/Pyro/pyro.fbx");
+	CacheModel("./models/Pyro/pyro.fbx");
 	CacheModel("./models/DarkSiderGun/GUN.fbx");
 
 
@@ -60,12 +60,21 @@ void Scene::Start() {
 	SceneEntity* entity;
 
 	//CreateEntity("./models/stanford/bunny.obj", "./textures/numbered_grid.tga", "DefaultShader", 1.0f);
-	//entity = CreateEntity("./models/Pyro/pyro.fbx", "./textures/numbered_grid.tga", "RiggingShader", 0.01f);
+
+	//entity = CreateEntity("./models/Pyro/pyro.fbx", "./models/Pyro/Pyro_D.tga", "NmappedRiggedPhong", 0.01f);
+
+	//entity->m_textures.normal = _TextureCache["./models/Pyro/Pyro_N.tga"];
+	//entity->m_textures.specular = _TextureCache["./models/Pyro/Pyro_S.tga"];
+	//entity->m_textures.weights = vec4(1,0,0,0);
+
 	entity = CreateEntity("./models/DarkSiderGun/GUN.fbx", "./models/DarkSiderGun/Gun_D.tga", "NmappedRiggedPhong", 0.5f);
 
 	entity->m_textures.normal = _TextureCache["./models/DarkSiderGun/Gun_N_1.tga"];
 	entity->m_textures.specular = _TextureCache["./models/DarkSiderGun/Gun_S.tga"];
-	entity->m_textures.glow = _TextureCache["./models/DarkSiderGun/Gun_A.tga"];
+	entity->m_textures.ambient = _TextureCache["./models/DarkSiderGun/Gun_A.tga"];
+	entity->m_textures.weights = vec4(1);
+	entity->spin = glm::quat(glm::vec3(1, 0, 0));
+
 
 	// Setup Lighting
 
@@ -97,12 +106,33 @@ void Scene::Draw( ) {
 		entity->m_shader->SetVec3("cameraPos", glm::value_ptr(m_camera.getPosition()));
 		entity->m_shader->SetVec3("ambient", glm::value_ptr(m_ambientLight));
 
+		entity->m_shader->SetVec4("TexWeights", glm::value_ptr(entity->m_textures.weights));
+
 		if (entity->m_textures.diffuse) entity->m_shader->SetTexture("diffuseTex", 0, entity->m_textures.diffuse->getHandle());
 		if (entity->m_textures.specular) entity->m_shader->SetTexture("specularTex", 1, entity->m_textures.specular->getHandle());
 		if (entity->m_textures.normal) entity->m_shader->SetTexture("normalTex", 2, entity->m_textures.normal->getHandle());
-		//if (entity->m_textures.diffuse) entity->m_shader->SetTexture("diffuseTex", 0, entity->m_textures.diffuse->getHandle());
+		if (entity->m_textures.ambient) entity->m_shader->SetTexture("ambientTex", 3, entity->m_textures.ambient->getHandle());
+
+
 
 		auto skelCount = entity->m_model->m_fbx->getSkeletonCount();
+		for (int i = 0; i < skelCount; ++i) {
+			FBXSkeleton* skel = entity->m_model->m_fbx->getSkeletonByIndex(i);
+			FBXAnimation* anim = entity->m_model->m_fbx->getAnimationByIndex(0);
+
+			float timestep = fmodf(entity->m_timestep, anim->totalTime());
+
+			skel->evaluate(anim, timestep);
+
+			for (unsigned int bone_index = 0; bone_index < skel->m_boneCount; ++bone_index)
+			{
+				skel->m_nodes[bone_index]->updateGlobalTransform();
+			}
+
+			// Force ONE skeleton
+			break;
+		}
+
 		for (unsigned int i = 0; i < skelCount; ++i ) {
 			FBXSkeleton* skeleton = entity->m_model->m_fbx->getSkeletonByIndex(i);
 			skeleton->updateBones();

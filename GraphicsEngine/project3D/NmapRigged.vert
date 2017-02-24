@@ -18,10 +18,12 @@ out vec3 debug;
 
 uniform mat4 pvmMatrix;
 uniform mat4 modelMatrix;
+uniform bool hasBones = false;
+
+const int MAX_BONES = 128;
+uniform mat4 bones[MAX_BONES];
 
 void main() {
-
-	
 
 	uv = texcoord;
 
@@ -30,13 +32,35 @@ void main() {
 	vec4 hN = vec4(normal.xyz, 0);
 	vec4 hT = vec4(tangent.xyz, 0);
 
+	if (hasBones) {
+		ivec4 index = ivec4( indices );
 
-	// Apply Transforms
+		// Apply Rigging Transforms
+		vec4 rP = bones[ index.x ] * hP * weights.x;
+			rP += bones[ index.y ] * hP * weights.y;
+			rP += bones[ index.z ] * hP * weights.z;
+			rP += bones[ index.w ] * hP * weights.w;
+
+		vec4 rN = inverse(transpose(bones[ index.x ])) * hN * weights.x;
+			rN += inverse(transpose(bones[ index.y ])) * hN * weights.y;
+			rN += inverse(transpose(bones[ index.z ])) * hN * weights.z;
+			rN += inverse(transpose(bones[ index.w ])) * hN * weights.w;
+
+		vec4 rT = inverse(transpose(bones[ index.x ])) * hT * weights.x;
+			rT += inverse(transpose(bones[ index.y ])) * hT * weights.y;
+			rT += inverse(transpose(bones[ index.z ])) * hT * weights.z;
+			rT += inverse(transpose(bones[ index.w ])) * hT * weights.w;
+
+		hP = vec4(rP.xyz, 0);
+		hN = vec4(rP.xyz, 0);
+		hT = vec4(rP.xyz, 0);
+	}
+
+	// Apply World-Space Transforms
 	vPosition = (modelMatrix * hP).xyz;
 	vNormal = normalize((inverse(transpose(modelMatrix)) * hN).xyz); 
-	//vNormal = normalize((modelMatrix * hN).xyz); 
-	vTangent = normalize((inverse(transpose(modelMatrix)) * hT).xyz); // TODO - map to world space
-	vBiTangent= normalize(cross(vNormal, vTangent.xyz));
+	vTangent = normalize((inverse(transpose(modelMatrix)) * hT).xyz);
+	vBiTangent= normalize(cross(hN.xyz, hT.xyz));
 
 	// Set gl Position
 	gl_Position = pvmMatrix * hP; 

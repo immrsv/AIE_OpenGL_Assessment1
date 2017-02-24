@@ -38,24 +38,9 @@ const glm::mat4& SceneEntity::GetTransform() {
 void SceneEntity::Update(float deltaTime) {
 	m_timestep += deltaTime;
 
-	m_rotation *= glm::quat(glm::vec3(deltaTime/2.f,0,0));
+	m_position += drift;
+	m_rotation *= (spin * deltaTime);
 	m_transformNeedsUpdate = true;
 
-	auto skelCount = m_model->m_fbx->getSkeletonCount();
-	for (int i = 0; i < skelCount; ++i) {
-		FBXSkeleton* skel = m_model->m_fbx->getSkeletonByIndex(i);
-		FBXAnimation* anim = m_model->m_fbx->getAnimationByIndex(0);
-
-		float timestep = fmodf(m_timestep, anim->totalTime());
-
-		skel->evaluate(anim, timestep);
-
-		for (unsigned int bone_index = 0; bone_index < skel->m_boneCount; ++bone_index)
-		{
-			skel->m_nodes[bone_index]->updateGlobalTransform();
-		}
-
-		// Force ONE skeleton
-		break;
-	}
+	
 }

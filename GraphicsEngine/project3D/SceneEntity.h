@@ -10,10 +10,12 @@ class SceneEntity
 public:
 
 	struct {
+		glm::vec4 weights = glm::vec4(0); // Ambient, Diffuse, Specular, Normal
+
+		aie::Texture* ambient = 0;
 		aie::Texture* diffuse = 0;
-		aie::Texture* normal = 0;
 		aie::Texture* specular = 0;
-		aie::Texture* glow = 0;
+		aie::Texture* normal = 0;
 	} m_textures;
 
 	SceneEntity(Model* model, aie::Texture* texture, Shader* shader, float scaleFactor);
@@ -29,6 +31,11 @@ public:
 
 	void Update(float deltaTime);
 
+	float m_timestep;
+
+	glm::vec3 drift = glm::vec3();
+	glm::quat spin = glm::quat();
+
 private:
 	glm::vec3 m_position;
 	glm::quat m_rotation;
@@ -38,6 +45,5 @@ private:
 
 	float m_scaleFactor = 0.1f;
 
-	float m_timestep;
 };
 
