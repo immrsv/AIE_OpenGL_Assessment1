@@ -40,10 +40,16 @@ void Scene::Start() {
 	//Shader::CompileShaders("TexturedShader", "../Project3D/Textured.vert", "../Project3D/Textured.frag");
 	//Shader::CompileShaders("MorphingShader", "../Project3D/Morphing.vert", "../Project3D/Morphing.frag");
 	Shader::CompileShaders("RiggingShader", "../Project3D/Rigging.vert", "../Project3D/Rigging.frag");
+	Shader::CompileShaders("NmappedRiggedBasic", "../Project3D/NmapRigged.vert", "../Project3D/Basic.frag");
 	Shader::CompileShaders("NmappedRiggedPhong", "../Project3D/NmapRigged.vert", "../Project3D/PhongMaps.frag");
 
 	// Load Textures
 	CacheTexture("./textures/numbered_grid.tga");
+
+
+	CacheTexture("./models/Pyro/Pyro_D.tga");
+	CacheTexture("./models/Pyro/Pyro_N.tga");
+	CacheTexture("./models/Pyro/Pyro_S.tga");
 
 	CacheTexture("./models/DarkSiderGun/Gun_A.tga");
 	CacheTexture("./models/DarkSiderGun/Gun_D.tga");
@@ -60,20 +66,22 @@ void Scene::Start() {
 	SceneEntity* entity;
 
 	//CreateEntity("./models/stanford/bunny.obj", "./textures/numbered_grid.tga", "DefaultShader", 1.0f);
+	entity = CreateEntity("./models/Pyro/pyro.fbx", "./models/Pyro/Pyro_D.tga", "NmappedRiggedPhong", 0.005f);
 
-	//entity = CreateEntity("./models/Pyro/pyro.fbx", "./models/Pyro/Pyro_D.tga", "NmappedRiggedPhong", 0.01f);
+	entity->m_textures.normal = _TextureCache["./models/Pyro/Pyro_N.tga"];
+	entity->m_textures.specular = _TextureCache["./models/Pyro/Pyro_S.tga"];
+	entity->m_textures.weights = vec4(0,1,1,0);
+	entity->spin = glm::quat(glm::vec3(0, 0.5, 0));
+	entity->SetPosition(vec3(5, 0, 5));
 
-	//entity->m_textures.normal = _TextureCache["./models/Pyro/Pyro_N.tga"];
-	//entity->m_textures.specular = _TextureCache["./models/Pyro/Pyro_S.tga"];
-	//entity->m_textures.weights = vec4(1,0,0,0);
-
-	entity = CreateEntity("./models/DarkSiderGun/GUN.fbx", "./models/DarkSiderGun/Gun_D.tga", "NmappedRiggedPhong", 0.5f);
+	entity = CreateEntity("./models/DarkSiderGun/GUN.fbx", "./models/DarkSiderGun/Gun_D.tga", "NmappedRiggedPhong", 0.2f);
 
 	entity->m_textures.normal = _TextureCache["./models/DarkSiderGun/Gun_N_1.tga"];
 	entity->m_textures.specular = _TextureCache["./models/DarkSiderGun/Gun_S.tga"];
 	entity->m_textures.ambient = _TextureCache["./models/DarkSiderGun/Gun_A.tga"];
-	entity->m_textures.weights = vec4(1);
+	entity->m_textures.weights = vec4(1,1,1,0);
 	entity->spin = glm::quat(glm::vec3(1, 0, 0));
+	entity->SetPosition(vec3(-4, 0, 0));
 
 
 	// Setup Lighting
@@ -104,7 +112,7 @@ void Scene::Draw( ) {
 		entity->m_shader->SetMat4("pvmMatrix", glm::value_ptr(m_camera.getTransform() * entity->GetTransform()));
 
 		entity->m_shader->SetVec3("cameraPos", glm::value_ptr(m_camera.getPosition()));
-		entity->m_shader->SetVec3("ambient", glm::value_ptr(m_ambientLight));
+		entity->m_shader->SetVec3("globalAmbient", glm::value_ptr(m_ambientLight));
 
 		entity->m_shader->SetVec4("TexWeights", glm::value_ptr(entity->m_textures.weights));
 
@@ -114,8 +122,10 @@ void Scene::Draw( ) {
 		if (entity->m_textures.ambient) entity->m_shader->SetTexture("ambientTex", 3, entity->m_textures.ambient->getHandle());
 
 
-
 		auto skelCount = entity->m_model->m_fbx->getSkeletonCount();
+
+		entity->m_shader->SetBool("hasBones", skelCount > 0);
+
 		for (int i = 0; i < skelCount; ++i) {
 			FBXSkeleton* skel = entity->m_model->m_fbx->getSkeletonByIndex(i);
 			FBXAnimation* anim = entity->m_model->m_fbx->getAnimationByIndex(0);
@@ -130,7 +140,7 @@ void Scene::Draw( ) {
 			}
 
 			// Force ONE skeleton
-			break;
+			//break;
 		}
 
 		for (unsigned int i = 0; i < skelCount; ++i ) {
@@ -140,7 +150,7 @@ void Scene::Draw( ) {
 			entity->m_shader->SetMat4Array("bones", skeleton->m_boneCount, (float*)skeleton->m_bones);
 
 			// Force ONE skeleton
-			break;
+			//break;
 		}
 		
 

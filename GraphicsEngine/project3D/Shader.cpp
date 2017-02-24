@@ -122,3 +122,8 @@ void Shader::SetTexture(string paramName, unsigned int texSlot, unsigned int tex
 	unsigned int loc = glGetUniformLocation(_programId, paramName.c_str());
 	glUniform1i(loc, /*GL_TEXTURE0 + */ texSlot);
 }
+
+void Shader::SetBool(string paramName, bool data) {
+	unsigned int loc = glGetUniformLocation(_programId, paramName.c_str());
+	glUniform1i(loc, (int)data);
+}

@@ -38,9 +38,8 @@ const glm::mat4& SceneEntity::GetTransform() {
 void SceneEntity::Update(float deltaTime) {
 	m_timestep += deltaTime;
 
-	m_position += drift;
-	m_rotation *= (spin * deltaTime);
-	m_transformNeedsUpdate = true;
+	m_position += (drift * deltaTime);
+	m_rotation = m_rotation * glm::slerp(glm::quat(), spin, deltaTime);
 
-	
+	m_transformNeedsUpdate = true;	
 }

@@ -22,6 +22,8 @@ public:
 
 	void SetTexture(string paramName, unsigned int textureSlot, unsigned int textureId);
 	
+	void SetBool(string paramName, bool data);
+	
 private:
 	static bool LoadShaderFromFile(const char* filePath, std::string& code);
 

@@ -27,7 +27,7 @@ void main() {
 	//fragColor = vec4(0.5);
 
 	
-	diffuse = lightClr * clamp(dot(vNormal, lightDir), 0., 1.);
+	diffuse = lightClr * clamp(dot(vNormal, -lightDir), 0., 1.);
 	 
 
 	//vec3 E = normalize( cameraPos - vPosition.xyz).xyz; // Direction to Camera from vPosition

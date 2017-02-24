@@ -51,16 +51,16 @@ void main() {
 			rT += inverse(transpose(bones[ index.z ])) * hT * weights.z;
 			rT += inverse(transpose(bones[ index.w ])) * hT * weights.w;
 
-		hP = vec4(rP.xyz, 0);
-		hN = vec4(rP.xyz, 0);
-		hT = vec4(rP.xyz, 0);
+		hP = vec4(rP.xyz, 1);
+		hN = vec4(normalize(rN.xyz), 0);
+		hT = vec4(normalize(rT.xyz), 0);
 	}
 
 	// Apply World-Space Transforms
 	vPosition = (modelMatrix * hP).xyz;
 	vNormal = normalize((inverse(transpose(modelMatrix)) * hN).xyz); 
 	vTangent = normalize((inverse(transpose(modelMatrix)) * hT).xyz);
-	vBiTangent= normalize(cross(hN.xyz, hT.xyz));
+	vBiTangent = cross(vNormal, vTangent);
 
 	// Set gl Position
 	gl_Position = pvmMatrix * hP; 

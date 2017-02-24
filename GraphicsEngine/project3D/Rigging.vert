@@ -25,7 +25,7 @@ void main() {
 	ivec4 index = ivec4(indices);
 
 	vec4 tempWeight;// =  weights * vec4( 1.f,1.f,1.f,1.f );
-	tempWeight = normalize(weights);
+	tempWeight = (weights);
 	
 	vec3 P = (bones[ index.x ] * position * weights.x).xyz;
 		P += (bones[ index.y ] * position * weights.y).xyz;
@@ -41,7 +41,6 @@ void main() {
     vNormal = normalize((modelMatrix * vec4(N.xyz,0)).xyz);
     uv = texcoord;
 
-	//debug = vec3(1);//normalize(tempWeight.xyz);
 
     gl_Position = pvmMatrix * vec4(P.xyz, 1);
 }
