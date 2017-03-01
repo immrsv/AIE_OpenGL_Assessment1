@@ -93,28 +93,28 @@
   <ItemGroup>
     <ClCompile Include="Application3D.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="FrameBuffer.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Model.cpp" />
-    <ClCompile Include="PointLight.cpp" />
+    <ClCompile Include="ParticleEngine.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneEntity.cpp" />
     <ClCompile Include="Shader.cpp" />
-    <ClCompile Include="SpotLight.cpp" />
     <ClCompile Include="tiny_obj_loader.cc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application3D.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="FrameBuffer.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Model.h" />
-    <ClInclude Include="PointLight.h" />
+    <ClInclude Include="ParticleEngine.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneEntity.h" />
     <ClInclude Include="Shader.h" />
-    <ClInclude Include="SpotLight.h" />
     <ClInclude Include="tiny_obj_loader.h" />
   </ItemGroup>
   <ItemGroup>

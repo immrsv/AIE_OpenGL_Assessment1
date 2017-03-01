@@ -3,6 +3,7 @@
 #include "Input.h"
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
+#include <imgui.h>
 
 #include "Shader.h"
 
@@ -11,6 +12,7 @@ using glm::vec3;
 using glm::vec4;
 using glm::mat4;
 using aie::Gizmos;
+
 
 Application3D::Application3D() {
 
@@ -104,4 +106,17 @@ void Application3D::draw() {
 	//Gizmos::draw(Scene::Instance()->m_camera.getTransform());
 
 	Scene::Instance()->Draw();
+
+	ImGui::Begin("Lights");
+	ImGui::SliderFloat3("Dir Light", &Scene::Instance()->m_directLightDir.x, -30, 30);
+
+	ImGui::SliderFloat3("Pt Lt Pos", &Scene::Instance()->pointLtPos[0].x, -30, 30);
+	ImGui::SliderFloat3("Pt Lt Clr", &Scene::Instance()->pointLtClr[0].x, 0, 1);
+	ImGui::SliderFloat3("Pt Lt Fall Off", &Scene::Instance()->pointLtCoeff[0].x, 0.01, 10);
+	ImGui::SliderFloat("Pt Lt Pwr", &Scene::Instance()->pointLtPwr[0], -1, 100);
+
+	ImGui::BeginChild("Asdf");
+	ImGui::SmallButton("Click Me!");
+	ImGui::EndChild();
+	ImGui::End();
 }

@@ -113,6 +113,16 @@ void Shader::SetVec4Array(string paramName, unsigned int arrayCount, const float
 	glUniform4fv(loc, arrayCount, data);
 }
 
+void Shader::SetVec3Array(string paramName, unsigned int arrayCount, const float* data) {
+	unsigned int loc = glGetUniformLocation(_programId, paramName.c_str());
+	glUniform3fv(loc, arrayCount, data);
+}
+
+void Shader::SetFloatArray(string paramName, unsigned int arrayCount, const float* data) {
+	unsigned int loc = glGetUniformLocation(_programId, paramName.c_str());
+	glUniform1fv(loc, arrayCount, data);
+}
+
 void Shader::SetTexture(string paramName, unsigned int texSlot, unsigned int texHandle) {
 	// Bind the texture
 	glActiveTexture(GL_TEXTURE0 + texSlot);

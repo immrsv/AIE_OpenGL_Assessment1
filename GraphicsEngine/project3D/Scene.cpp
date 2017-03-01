@@ -20,6 +20,9 @@ Scene* Scene::Instance() {
 Scene::Scene()
 	: m_camera()
 {
+	for (int i = 0; i < MAX_LIGHTS; i++) {
+		pointLtPwr[i] = -1;
+	}
 }
 
 
@@ -32,7 +35,7 @@ void Scene::Start() {
 
 	m_camera.setViewFor(vec3(0, 10, -10), 90.f, -45.f);
 
-	m_ambientLight = vec3(0.05);
+	m_ambientLight = vec3(0.05f);
 
 	// Load Shaders
 	Shader::CompileShaders("DefaultShader", "../Project3D/Basic.vert", "../Project3D/Basic.frag");
@@ -43,48 +46,103 @@ void Scene::Start() {
 	Shader::CompileShaders("NmappedRiggedBasic", "../Project3D/NmapRigged.vert", "../Project3D/Basic.frag");
 	Shader::CompileShaders("NmappedRiggedPhong", "../Project3D/NmapRigged.vert", "../Project3D/PhongMaps.frag");
 
-	// Load Textures
-	CacheTexture("./textures/numbered_grid.tga");
-
-
-	CacheTexture("./models/Pyro/Pyro_D.tga");
-	CacheTexture("./models/Pyro/Pyro_N.tga");
-	CacheTexture("./models/Pyro/Pyro_S.tga");
-
-	CacheTexture("./models/DarkSiderGun/Gun_A.tga");
-	CacheTexture("./models/DarkSiderGun/Gun_D.tga");
-	CacheTexture("./models/DarkSiderGun/Gun_N_1.tga");
-	CacheTexture("./models/DarkSiderGun/Gun_S.tga");
-
-	// Load Models
-	//CacheModel("./models/stanford/bunny.obj");
-	CacheModel("./models/Pyro/pyro.fbx");
-	CacheModel("./models/DarkSiderGun/GUN.fbx");
-
-
 	// Make Entities
 	SceneEntity* entity;
 
-	//CreateEntity("./models/stanford/bunny.obj", "./textures/numbered_grid.tga", "DefaultShader", 1.0f);
-	entity = CreateEntity("./models/Pyro/pyro.fbx", "./models/Pyro/Pyro_D.tga", "NmappedRiggedPhong", 0.005f);
+	entity = CreateEntity(CachedModel("./models/Pyro/pyro.fbx"), Shader::GetShader("NmappedRiggedPhong"), 0.005f);
 
-	entity->m_textures.normal = _TextureCache["./models/Pyro/Pyro_N.tga"];
-	entity->m_textures.specular = _TextureCache["./models/Pyro/Pyro_S.tga"];
-	entity->m_textures.weights = vec4(0,1,1,0);
+	entity->m_textures.diffuse = CachedTexture("./models/Pyro/Pyro_D.tga");
+	entity->m_textures.normal = CachedTexture("./models/Pyro/Pyro_N.tga");
+	entity->m_textures.specular = CachedTexture("./models/Pyro/Pyro_S.tga");
+	entity->m_textures.weights = vec4(0, 1, 1, 0);
 	entity->spin = glm::quat(glm::vec3(0, 0.5, 0));
 	entity->SetPosition(vec3(5, 0, 5));
 
-	entity = CreateEntity("./models/DarkSiderGun/GUN.fbx", "./models/DarkSiderGun/Gun_D.tga", "NmappedRiggedPhong", 0.2f);
+	entity = CreateEntity(CachedModel("./models/Pyro/pyro.fbx"), Shader::GetShader("NmappedRiggedPhong"), 0.005f);
 
-	entity->m_textures.normal = _TextureCache["./models/DarkSiderGun/Gun_N_1.tga"];
-	entity->m_textures.specular = _TextureCache["./models/DarkSiderGun/Gun_S.tga"];
-	entity->m_textures.ambient = _TextureCache["./models/DarkSiderGun/Gun_A.tga"];
+	entity->m_textures.diffuse = CachedTexture("./models/Pyro/Pyro_D.tga");
+	entity->m_textures.normal = CachedTexture("./models/Pyro/Pyro_N.tga");
+	entity->m_textures.specular = CachedTexture("./models/Pyro/Pyro_S.tga");
+	entity->m_textures.weights = vec4(0, 1, 1, 0);
+	entity->spin = glm::quat(glm::vec3(0, 0.5, 0));
+	entity->SetPosition(vec3(-5, 0, 5));
+	entity->m_animSpeed = 0.5;
+
+	entity = CreateEntity(CachedModel("./models/Pyro/pyro.fbx"), Shader::GetShader("NmappedRiggedPhong"), 0.005f);
+
+	entity->m_textures.diffuse = CachedTexture("./models/Pyro/Pyro_D.tga");
+	entity->m_textures.normal = CachedTexture("./models/Pyro/Pyro_N.tga");
+	entity->m_textures.specular = CachedTexture("./models/Pyro/Pyro_S.tga");
+	entity->m_textures.weights = vec4(0, 1, 1, 0);
+	entity->spin = glm::quat(glm::vec3(0, 0.5, 0));
+	entity->SetPosition(vec3(-5, 0, -5));
+
+	entity = CreateEntity(CachedModel("./models/Pyro/pyro.fbx"), Shader::GetShader("NmappedRiggedPhong"), 0.005f);
+
+	entity->m_textures.diffuse = CachedTexture("./models/Pyro/Pyro_D.tga");
+	entity->m_textures.normal = CachedTexture("./models/Pyro/Pyro_N.tga");
+	entity->m_textures.specular = CachedTexture("./models/Pyro/Pyro_S.tga");
+	entity->m_textures.weights = vec4(0, 1, 1, 0);
+	entity->spin = glm::quat(glm::vec3(0, 0.5, 0));
+	entity->SetPosition(vec3(5, 0, -5));
+	entity->m_animSpeed = 1.4;
+
+
+
+
+	entity = CreateEntity(CachedModel("./models/DarkSiderGun/GUN.fbx"), Shader::GetShader("NmappedRiggedPhong"), 0.2f);
+
+	entity->m_textures.diffuse = CachedTexture("./models/DarkSiderGun/Gun_D.tga"); 
+	entity->m_textures.normal = CachedTexture("./models/DarkSiderGun/Gun_N_1.tga");
+	entity->m_textures.specular = CachedTexture("./models/DarkSiderGun/Gun_S.tga"); 
+	entity->m_textures.ambient = CachedTexture("./models/DarkSiderGun/Gun_A.tga"); 
 	entity->m_textures.weights = vec4(1,1,1,0);
-	entity->spin = glm::quat(glm::vec3(1, 0, 0));
+	entity->spin = glm::quat(glm::vec3(0.5, 0, 0));
+	entity->SetPosition(vec3(4, 0, 4));
+
+	entity = CreateEntity(CachedModel("./models/DarkSiderGun/GUN.fbx"), Shader::GetShader("NmappedRiggedPhong"), 0.2f);
+
+	entity->m_textures.diffuse = CachedTexture("./models/DarkSiderGun/Gun_D.tga");
+	entity->m_textures.normal = CachedTexture("./models/DarkSiderGun/Gun_N_1.tga");
+	entity->m_textures.specular = CachedTexture("./models/DarkSiderGun/Gun_S.tga");
+	entity->m_textures.ambient = CachedTexture("./models/DarkSiderGun/Gun_A.tga");
+	entity->m_textures.weights = vec4(1, 1, 1, 0);
+	entity->spin = glm::quat(glm::vec3(1, 0, 1));
 	entity->SetPosition(vec3(-4, 0, 0));
+
+	entity = CreateEntity(CachedModel("./models/DarkSiderGun/GUN.fbx"), Shader::GetShader("NmappedRiggedPhong"), 0.2f);
+
+	entity->m_textures.diffuse = CachedTexture("./models/DarkSiderGun/Gun_D.tga");
+	entity->m_textures.normal = CachedTexture("./models/DarkSiderGun/Gun_N_1.tga");
+	entity->m_textures.specular = CachedTexture("./models/DarkSiderGun/Gun_S.tga");
+	entity->m_textures.ambient = CachedTexture("./models/DarkSiderGun/Gun_A.tga");
+	entity->m_textures.weights = vec4(1, 1, 1, 0);
+	entity->spin = glm::quat(glm::vec3(1, 0, 0));
+	entity->SetPosition(vec3(-4, 0, 4));
+
+	entity = CreateEntity(CachedModel("./models/DarkSiderGun/GUN.fbx"), Shader::GetShader("NmappedRiggedPhong"), 0.2f);
+
+	entity->m_textures.diffuse = CachedTexture("./models/DarkSiderGun/Gun_D.tga");
+	entity->m_textures.normal = CachedTexture("./models/DarkSiderGun/Gun_N_1.tga");
+	entity->m_textures.specular = CachedTexture("./models/DarkSiderGun/Gun_S.tga");
+	entity->m_textures.ambient = CachedTexture("./models/DarkSiderGun/Gun_A.tga");
+	entity->m_textures.weights = vec4(1, 1, 1, 0);
+	entity->spin = glm::quat(glm::vec3(0, 0.7, 0));
+	entity->SetPosition(vec3(-4, 0, -4));
+
 
 
 	// Setup Lighting
+
+	m_directLightDir = glm::normalize( vec3(-1, -1, 1) );
+	m_directLightClr = vec3(0.5);
+
+	AddLight(Light(0, vec3(0, 5, 0), vec3(0.7f), vec3(1), 10));
+	AddLight(Light(0, vec3(0, 5, -10), vec3(0, 0.6f, 0.6f), vec3(1), 50));
+	AddLight(Light(0, vec3(10, 5, 0), vec3(1, 0, 1), vec3(1), 50));
+
+
+
 
 }
 
@@ -107,6 +165,14 @@ void Scene::Draw( ) {
 		entity->m_shader->MakeActive();
 
 
+		entity->m_shader->SetVec3("directLightDir", glm::value_ptr(glm::normalize(m_directLightDir)));
+		entity->m_shader->SetVec3("directLightClr", glm::value_ptr(m_directLightClr));
+
+		entity->m_shader->SetVec3Array("pointLtPos", MAX_LIGHTS, (float*)pointLtPos);
+		entity->m_shader->SetVec3Array("pointLtClr", MAX_LIGHTS, (float*)pointLtClr);
+		entity->m_shader->SetVec3Array("pointLtCoeff", MAX_LIGHTS, (float*)pointLtCoeff);
+		entity->m_shader->SetFloatArray("pointLtPwr", MAX_LIGHTS, (float*)pointLtPwr);
+
 		entity->m_shader->SetMat4("pvmMatrix", glm::value_ptr(m_camera.getTransform() * entity->GetTransform()));
 		entity->m_shader->SetMat4("modelMatrix", glm::value_ptr(entity->GetTransform()));
 		entity->m_shader->SetMat4("pvmMatrix", glm::value_ptr(m_camera.getTransform() * entity->GetTransform()));
@@ -126,7 +192,7 @@ void Scene::Draw( ) {
 
 		entity->m_shader->SetBool("hasBones", skelCount > 0);
 
-		for (int i = 0; i < skelCount; ++i) {
+		for (unsigned int i = 0; i < skelCount; ++i) {
 			FBXSkeleton* skel = entity->m_model->m_fbx->getSkeletonByIndex(i);
 			FBXAnimation* anim = entity->m_model->m_fbx->getAnimationByIndex(0);
 
@@ -159,7 +225,7 @@ void Scene::Draw( ) {
 	}
 }
 
-void Scene::CacheModel(string filename) {
+Model* Scene::CachedModel(string filename) {
 
 	std::cout << "Loading Model: " << filename << std::flush;
 
@@ -167,23 +233,24 @@ void Scene::CacheModel(string filename) {
 	if (iter != _ModelCache.end()) {
 
 		std::cout << " - Already Cached!" << std::endl;
-		return;
+		return iter->second;
 	}
 
 	auto model = new Model(filename);
 	std::cout << " - Done!" << std::endl;
 
 	_ModelCache[filename] = model;
+	return model;
 }
 
-void Scene::CacheTexture(string filename) {
+aie::Texture* Scene::CachedTexture(string filename) {
 	std::cout << "Loading Texture File: " << filename << std::flush;
 
 	std::map<std::string, aie::Texture*>::iterator iter = _TextureCache.find(filename);
 	if (iter != _TextureCache.end()) {
 
 		std::cout << " - Already Cached!" << std::endl;
-		return;
+		return iter->second;
 	}
 
 	auto tex = new aie::Texture(filename.c_str());
@@ -191,16 +258,51 @@ void Scene::CacheTexture(string filename) {
 	std::cout << " - Done!" << std::endl;
 
 	_TextureCache[filename] = tex;
+	return tex;
 }
 
-void Scene::CacheShader(string pseudonym, string vertexFilename, string fragmentFilename) {
+Shader* Scene::CachedShader(string pseudonym, string vertexFilename, string fragmentFilename) {
 	// Shader class handles own caching
 	Shader::CompileShaders(pseudonym, vertexFilename, fragmentFilename);
+	return Shader::GetShader(pseudonym);
 }
 
-SceneEntity* Scene::CreateEntity(string model, string texture, string shader, float scaleFactor) {
-	auto entity = new SceneEntity(_ModelCache[model], _TextureCache[texture], Shader::GetShader(shader), scaleFactor);
+SceneEntity* Scene::CreateEntity(Model* model, Shader* shader, float scaleFactor) {
+	auto entity = new SceneEntity(model, shader, scaleFactor);
 	
 	_Entities.push_back(entity);
 	return entity;
+}
+
+int Scene::AddLight(Light& light) {
+
+	
+	for (int i = 0; i < MAX_LIGHTS; i++) {
+		if (pointLtPwr[i] < 0.0f) {
+			pointLtPos[i] = light.Position;
+			pointLtClr[i] = light.Color;
+			pointLtCoeff[i] = light.Coeff;
+			pointLtPwr[i] = light.Power;
+			std::cout << "Added Light: [" << light.Color.r << "," << light.Color.g << "," << light.Color.b << "] at [" << light.Position.x << "," << light.Position.y << "," << light.Position.z << "]" << std::endl;
+			std::cout << "        -> : [" << pointLtClr[i].r << "," << pointLtClr[i].g << "," << pointLtClr[i].b << "] at [" << pointLtPos[i].x << "," << pointLtPos[i].y << "," << pointLtPos[i].z << "]" << std::endl;
+			return i;
+		}
+	}
+
+	return -1;
+}
+
+Light Scene::GetLight(int idx) {
+	if (pointLtPwr[idx] < 0.0f)
+		return Light(idx, vec3(0), vec3(0), vec3(0), 0.f);
+	else
+		return Light(idx, pointLtPos[idx], pointLtClr[idx], pointLtCoeff[idx], pointLtPwr[idx]);
+}
+
+bool Scene::RemoveLight(int idx) {
+	if (pointLtPwr[idx] < 0.0f)
+		return false;
+
+	pointLtPwr[idx] = -1;
+	return true;
 }

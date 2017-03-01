@@ -20,15 +20,14 @@ float alpha = 1.0;
 vec3 N;
 
 
-uniform vec3 lightDir = normalize(vec3(-1,-1,1));
-uniform vec3 lightClr = vec3(1.0);
+uniform vec3 directLightDir = normalize(vec3(-1,-1,1));
+uniform vec3 directLightClr = vec3(1.0);
 
 const int MAX_LIGHTS = 8;
 
-
-uniform int pointLtNum = 0;
 uniform vec3 pointLtPos[MAX_LIGHTS];
 uniform vec3 pointLtClr[MAX_LIGHTS];
+uniform vec3 pointLtCoeff[MAX_LIGHTS];
 uniform float pointLtPwr[MAX_LIGHTS];
 
 uniform vec3 cameraPos = vec3(0);
@@ -60,18 +59,18 @@ vec3 slerp( vec3 origin, vec3 target, float progress) {
 }
 
 vec3 PointLightDiffPart(int i, vec3 L, float att) {
-	vec3 result = att * lightClr * max(0.f, dot(N, L));
-	return mix( result, result * texture(diffuseTex, uv).rgb, TexWeights.y);
+	vec3 result = att * pointLtClr[i] * max(0.f, dot(N, L));
+	return max(vec3(0), mix( result, result * texture(diffuseTex, uv).rgb, TexWeights.y) );
 }
 
-vec3 PointLightSpecPart(int i, vec3 L) {
-	vec3 E = normalize( cameraPos - vPosition.xyz ).xyz; // Direction to Camera from vPosition
-	vec3 R = reflect( lightDir.xyz, N.xyz).xyz; // Reflected Ray
+vec3 PointLightSpecPart(int i, vec3 L, vec3 E, float att) {
+	
+	vec3 R = reflect( -L.xyz, N.xyz).xyz; // Reflected Ray
 	float s = max( 0, dot( R, E ));	// Specular value
 	s = pow( s, specPow ); // Raise to Specular Power
 
-	vec3 result = lightClr * s;
-	return mix( specularPart, specularPart * texture(specularTex, uv).rgb, TexWeights.z);
+	vec3 result = att * pointLtClr[i] * s;
+	return max( vec3(0), mix( result, result * texture(specularTex, uv).rgb, TexWeights.z) );
 }
 
 void main() { 
@@ -85,26 +84,27 @@ void main() {
 	N = slerp( vNormal, normalize(TBN * vNormal), TexWeights.w);
 	
 	// Point Lights
-	for ( int i = 0 ; i < min(pointLtNum, MAX_LIGHTS) ; i++ ) {
-		vec3 L = normalize(  pointLtPos[i].xyz - vPosition.xyz );
-		float t dist = length(pointLtPos[i].xyz - vPosition.xyz);
-		float att = 1.0/(1.0 + 0.1*dist + 0.1*dist*dist);
+	vec3 E = normalize( cameraPos - vPosition.xyz ).xyz; // Direction TO Camera from vPosition
 
-		diffusePart += PointLightDiffPart(i,L);
-		specularPart += PointLightSpecPart(i,L);
+	for ( int i = 0 ; i < MAX_LIGHTS ; i++ ) {
+		vec3 L = normalize(  pointLtPos[i].xyz - vPosition.xyz ); // Direction TO light from vPosition
+		float dist = length( pointLtPos[i].xyz - vPosition.xyz ); // Distance between light and vPosition
+		float att = max(0, pointLtPwr[i]) / (pointLtCoeff[i].x + pointLtCoeff[i].y * dist + pointLtCoeff[i].z * dist * dist);
+
+		diffusePart += PointLightDiffPart(i, L, att);
+		specularPart += PointLightSpecPart(i, L, E, att);
 	}
 
 	// Directional Lights
-	diffusePart = lightClr * max(0.f, dot(N, -lightDir));
-	diffusePart = mix( diffusePart, diffusePart * texture(diffuseTex, uv).rgb, TexWeights.y);
+	vec3 dirDiffusePart = directLightClr * max(0.f, dot(N, -directLightDir));
+	diffusePart += mix( dirDiffusePart, dirDiffusePart * texture(diffuseTex, uv).rgb, TexWeights.y);
 
-	vec3 E = normalize( cameraPos - vPosition.xyz ).xyz; // Direction to Camera from vPosition
-	vec3 R = reflect( lightDir.xyz, N.xyz).xyz; // Reflected Ray
+	vec3 R = reflect( directLightDir.xyz, N.xyz).xyz; // Reflected Ray
 	float s = max( 0, dot( R, E ));	// Specular value
 	s = pow( s, specPow ); // Raise to Specular Power
 
-	specularPart = lightClr * s;
-	specularPart = mix( specularPart, specularPart * texture(specularTex, uv).rgb, TexWeights.z);
+	vec3 dirSpecularPart = directLightClr * s;
+	specularPart += mix( dirSpecularPart, dirSpecularPart * texture(specularTex, uv).rgb, TexWeights.z);
 
 
 	fragColor = clamp(vec4( ambientPart + diffusePart + specularPart, alpha), 0, 1);

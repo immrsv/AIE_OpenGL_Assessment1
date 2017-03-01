@@ -19,6 +19,8 @@ public:
 
 	void SetMat4Array(string paramName, unsigned int arrayCount, const float* data);
 	void SetVec4Array(string paramName, unsigned int arrayCount, const float* data);
+	void SetVec3Array(string paramName, unsigned int arrayCount, const float* data);
+	void SetFloatArray(string paramName, unsigned int arrayCount, const float* data);
 
 	void SetTexture(string paramName, unsigned int textureSlot, unsigned int textureId);
 	

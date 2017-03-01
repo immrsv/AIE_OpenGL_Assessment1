@@ -4,10 +4,9 @@
 #include <cmath>
 #include <random>
 
-SceneEntity::SceneEntity(Model* model, aie::Texture* texture, Shader* shader, float scaleFactor)
-	: m_model(model), m_shader(shader), m_scaleFactor(scaleFactor), m_timestep(0.0f)
+SceneEntity::SceneEntity(Model* model, Shader* shader, float scaleFactor)
+	: m_model(model), m_shader(shader), m_scaleFactor(scaleFactor), m_timestep(0.0f), m_animSpeed(1.0f)
 {
-	m_textures.diffuse = texture;
 }
 
 
@@ -36,7 +35,7 @@ const glm::mat4& SceneEntity::GetTransform() {
 
 
 void SceneEntity::Update(float deltaTime) {
-	m_timestep += deltaTime;
+	m_timestep += deltaTime * m_animSpeed;
 
 	m_position += (drift * deltaTime);
 	m_rotation = m_rotation * glm::slerp(glm::quat(), spin, deltaTime);

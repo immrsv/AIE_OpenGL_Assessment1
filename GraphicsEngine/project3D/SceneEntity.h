@@ -18,7 +18,7 @@ public:
 		aie::Texture* normal = 0;
 	} m_textures;
 
-	SceneEntity(Model* model, aie::Texture* texture, Shader* shader, float scaleFactor);
+	SceneEntity(Model* model, Shader* shader, float scaleFactor);
 
 	Model* m_model;
 	Shader* m_shader;
@@ -32,6 +32,7 @@ public:
 	void Update(float deltaTime);
 
 	float m_timestep;
+	float m_animSpeed;
 
 	glm::vec3 drift = glm::vec3();
 	glm::quat spin = glm::quat();

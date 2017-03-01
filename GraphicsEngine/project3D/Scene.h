@@ -29,11 +29,11 @@ class Scene
 public:
 	static Scene* Instance();
 	
-	static void CacheModel(string filename);
-	static void CacheTexture(string filename);
-	static void CacheShader(string pseudonym, string vertexFilename, string fragmentFilename);
+	static Model* CachedModel(string filename);
+	static aie::Texture* CachedTexture(string filename);
+	static Shader* CachedShader(string pseudonym, string vertexFilename, string fragmentFilename);
 
-	SceneEntity* CreateEntity(string model, string texture, string shader, float scaleFactor = 1.f);
+	SceneEntity* CreateEntity(Model* model, Shader* shader, float scaleFactor = 1.f);
 	
 	void Start();
 	void Update(float deltaTime);
@@ -42,7 +42,18 @@ public:
 	Camera m_camera;
 
 	glm::vec3 m_ambientLight;
-	
+	glm::vec3 m_directLightDir;
+	glm::vec3 m_directLightClr;
+
+	int AddLight(Light& light);
+	Light GetLight(int idx);
+	bool RemoveLight(int idx);
+
+	#define MAX_LIGHTS 128
+	vec3 pointLtPos[MAX_LIGHTS];
+	vec3 pointLtClr[MAX_LIGHTS];
+	vec3 pointLtCoeff[MAX_LIGHTS];
+	float pointLtPwr[MAX_LIGHTS];
 
 private:
 	Scene();
