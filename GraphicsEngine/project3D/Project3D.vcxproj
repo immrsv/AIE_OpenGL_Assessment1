@@ -97,6 +97,7 @@
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Material.cpp" />
+    <ClCompile Include="Mirror.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="ParticleEngine.cpp" />
     <ClCompile Include="Scene.cpp" />
@@ -110,6 +111,7 @@
     <ClInclude Include="FrameBuffer.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Material.h" />
+    <ClInclude Include="Mirror.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="ParticleEngine.h" />
     <ClInclude Include="Scene.h" />
