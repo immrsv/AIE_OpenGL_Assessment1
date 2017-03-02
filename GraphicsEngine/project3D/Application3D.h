@@ -4,10 +4,9 @@
 #include <glm/mat4x4.hpp>
 
 #include "Application.h"
-#include "Camera.h"
-#include "Input.h"
-#include "Model.h"
+#include <Input.h>
 #include "Scene.h"
+#include "FrameBuffer.h"
 
 class Application3D : public aie::Application {
 public:
@@ -22,5 +21,9 @@ public:
 	virtual void draw();
 
 protected:
+
+	bool usePostProc = true;
+
+	FrameBuffer m_fbo;
 
 };

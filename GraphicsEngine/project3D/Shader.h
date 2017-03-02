@@ -16,6 +16,7 @@ public:
 	void SetMat4(string paramName, const float* data);
 	void SetVec4(string paramName, const float* data);
 	void SetVec3(string paramName, const float* data);
+	void SetVec2(string paramName, const float* data);
 
 	void SetMat4Array(string paramName, unsigned int arrayCount, const float* data);
 	void SetVec4Array(string paramName, unsigned int arrayCount, const float* data);

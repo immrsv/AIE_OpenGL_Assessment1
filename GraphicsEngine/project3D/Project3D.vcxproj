@@ -124,6 +124,8 @@
     <None Include="Basic.vert">
       <DeploymentContent>false</DeploymentContent>
     </None>
+    <None Include="FboQuad.frag" />
+    <None Include="FboQuad.vert" />
     <None Include="Lighted.frag" />
     <None Include="Lighted.vert" />
     <None Include="Morphing.frag" />

@@ -24,7 +24,7 @@ Application3D::~Application3D() {
 
 bool Application3D::startup() {
 	
-	setBackgroundColour(0.25f, 0.25f, 0.25f);
+	setBackgroundColour(0.25f, 0.25f, 0.25f, 0.f);
 
 	// initialise gizmo primitive counts
 	Gizmos::create(10000, 10000, 10000, 10000);
@@ -35,6 +35,8 @@ bool Application3D::startup() {
 	Scene::Instance()->m_camera.setProjection(glm::perspective(glm::pi<float>() * 0.25f,
 		getWindowWidth() / (float)getWindowHeight(),
 		0.1f, 1000.f));
+
+	m_fbo.Init(getWindowWidth(), getWindowHeight());
 
 	return true;
 }
@@ -97,15 +99,40 @@ void Application3D::draw() {
 	// wipe the screen to the background colour
 	clearScreen();
 
+
+	Gizmos::draw(Scene::Instance()->m_camera.getTransform());
+
+	// Bind FBO for post-proc
+	if (usePostProc) {
+		m_fbo.SetViewport(getWindowWidth(), getWindowHeight());
+		m_fbo.Begin();
+
+		// wipe the screen to the background colour
+		clearScreen();
+	}
+
 	// update perspective in case window resized
 
 	Scene::Instance()->m_camera.setProjection(glm::perspective(glm::pi<float>() * 0.25f,
 		getWindowWidth() / (float)getWindowHeight(),
 		0.1f, 1000.f));
 
-	//Gizmos::draw(Scene::Instance()->m_camera.getTransform());
+	
 
 	Scene::Instance()->Draw();
+
+
+	// Unbind post-proc FBO, draw to screen
+	if (usePostProc) {
+		m_fbo.End();
+		m_fbo.DrawToScreen();
+	}
+
+
+
+	ImGui::Begin("Render");
+	ImGui::Checkbox("Post Process", &usePostProc);
+	ImGui::End();
 
 	ImGui::Begin("Lights");
 	ImGui::SliderFloat3("Dir Light", &Scene::Instance()->m_directLightDir.x, -30, 30);

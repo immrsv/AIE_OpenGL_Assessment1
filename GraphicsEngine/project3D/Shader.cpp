@@ -103,6 +103,11 @@ void Shader::SetVec3(string paramName, const float* data) {
 	glUniform3fv(loc, 1, data);
 }
 
+void Shader::SetVec2(string paramName, const float * data) {
+	unsigned int loc = glGetUniformLocation(_programId, paramName.c_str());
+	glUniform2fv(loc, 1, data);
+}
+
 void Shader::SetMat4Array(string paramName, unsigned int arrayCount, const float* data) {
 	unsigned int loc = glGetUniformLocation(_programId, paramName.c_str());
 	glUniformMatrix4fv(loc, arrayCount, false, data);
