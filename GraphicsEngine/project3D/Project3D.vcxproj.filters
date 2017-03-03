@@ -58,6 +58,9 @@
     <ClCompile Include="Mirror.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Transform.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application3D.h">
@@ -94,6 +97,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Mirror.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Transform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

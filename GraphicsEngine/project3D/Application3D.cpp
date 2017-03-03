@@ -139,7 +139,7 @@ void Application3D::draw() {
 
 	ImGui::SliderFloat3("Pt Lt Pos", &Scene::Instance()->pointLtPos[0].x, -30, 30);
 	ImGui::SliderFloat3("Pt Lt Clr", &Scene::Instance()->pointLtClr[0].x, 0, 1);
-	ImGui::SliderFloat3("Pt Lt Fall Off", &Scene::Instance()->pointLtCoeff[0].x, 0.01, 10);
+	ImGui::SliderFloat3("Pt Lt Fall Off", &Scene::Instance()->pointLtCoeff[0].x, 0.01f, 10);
 	ImGui::SliderFloat("Pt Lt Pwr", &Scene::Instance()->pointLtPwr[0], -1, 100);
 
 	ImGui::BeginChild("Asdf");

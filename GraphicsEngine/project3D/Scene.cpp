@@ -33,7 +33,9 @@ Scene::~Scene()
 
 void Scene::Start() {
 
-	m_camera.setViewFor(vec3(0, 10, -10), 90.f, -45.f);
+	//m_camera.setViewFor(vec3(0, 10, -10), 90.f, -45.f);
+	//m_camera.setViewFor(vec3(0, 0,0), glm::quat(vec3(3.14/4.0f, 3.14/2.0f,0 )));
+	m_camera.setViewFor(vec3(0, 10, -15), glm::quat(vec3(-glm::pi<float>() / 5.0f, glm::pi<float>(),0)));
 
 	m_ambientLight = vec3(0.05f);
 
@@ -66,7 +68,7 @@ void Scene::Start() {
 	entity->m_textures.weights = vec4(0, 1, 1, 0);
 	entity->spin = glm::quat(glm::vec3(0, 0.5, 0));
 	entity->SetPosition(vec3(-5, 0, 5));
-	entity->m_animSpeed = 0.5;
+	entity->m_animSpeed = 0.5f;
 
 	entity = CreateEntity(CachedModel("./models/Pyro/pyro.fbx"), Shader::GetShader("NmappedRiggedPhong"), 0.005f);
 
@@ -85,7 +87,7 @@ void Scene::Start() {
 	entity->m_textures.weights = vec4(0, 1, 1, 0);
 	entity->spin = glm::quat(glm::vec3(0, 0.5, 0));
 	entity->SetPosition(vec3(5, 0, -5));
-	entity->m_animSpeed = 1.4;
+	entity->m_animSpeed = 1.4f;
 
 
 
@@ -156,11 +158,12 @@ void Scene::Update(float deltaTime) {
 	m_camera.update(deltaTime);
 }
 
-void Scene::Draw( ) {
+void Scene::Draw( SceneEntity* exclude) {
 	
 	for (auto entity : _Entities) {
 
-
+		if (entity == exclude) continue; // Check we're not rendering the current mirror
+		
 		// Bind Shader
 		entity->m_shader->MakeActive();
 
@@ -206,7 +209,7 @@ void Scene::Draw( ) {
 			}
 
 			// Force ONE skeleton
-			//break;
+			// break;
 		}
 
 		for (unsigned int i = 0; i < skelCount; ++i ) {

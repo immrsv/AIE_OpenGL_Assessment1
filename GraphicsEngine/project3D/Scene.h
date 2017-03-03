@@ -37,7 +37,7 @@ public:
 	
 	void Start();
 	void Update(float deltaTime);
-	void Draw();
+	void Draw(SceneEntity* exclude = 0);
 
 	Camera m_camera;
 
