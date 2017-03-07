@@ -4,7 +4,7 @@
 #include <cmath>
 #include <random>
 
-SceneEntity::SceneEntity(Model* model, Shader* shader, float scaleFactor)
+SceneEntity::SceneEntity(FbxModel* model, Shader* shader, float scaleFactor)
 	: m_model(model), m_shader(shader), m_scaleFactor(scaleFactor), m_timestep(0.0f), m_animSpeed(1.0f)
 {
 }
@@ -41,4 +41,12 @@ void SceneEntity::Update(float deltaTime) {
 	m_rotation = m_rotation * glm::slerp(glm::quat(), spin, deltaTime);
 
 	m_transformNeedsUpdate = true;	
+}
+
+
+void SceneEntity::Predraw(Shader* shader) {
+
+	if (shader == 0) shader = m_shader;
+
+
 }

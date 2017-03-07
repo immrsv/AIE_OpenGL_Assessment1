@@ -1,15 +1,14 @@
 #pragma once
 
-#include <map>
 #include <FBXFile.h>
 
-class Model
+class FbxModel 
 {
 public:
-	Model(std::string filename);
-	~Model();
-	
-	void draw();
+	FbxModel(std::string filename);
+	~FbxModel();
+
+	virtual void draw();
 
 	FBXFile* m_fbx;
 

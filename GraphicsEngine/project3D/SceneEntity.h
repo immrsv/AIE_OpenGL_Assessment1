@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Model.h"
+#include "FbxModel.h"
+#include "Mirror.h"
 #include "Shader.h"
 #include <glm/glm.hpp>
 #include <Texture.h>
@@ -16,11 +17,15 @@ public:
 		aie::Texture* diffuse = 0;
 		aie::Texture* specular = 0;
 		aie::Texture* normal = 0;
+
+		bool isEmissiveAmbient = false;
 	} m_textures;
 
-	SceneEntity(Model* model, Shader* shader, float scaleFactor);
+	SceneEntity(FbxModel* model, Shader* shader, float scaleFactor);
 
-	Model* m_model;
+	FbxModel* m_model;
+	Mirror* m_mirror;
+
 	Shader* m_shader;
 
 	void SetPosition(glm::vec3 pos);
@@ -30,6 +35,10 @@ public:
 	const glm::mat4& GetTransform();
 
 	void Update(float deltaTime);
+	
+
+	void Predraw(Shader* shader = 0);
+	void Draw();
 
 	float m_timestep;
 	float m_animSpeed;

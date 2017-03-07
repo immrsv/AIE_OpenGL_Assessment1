@@ -93,12 +93,12 @@
   <ItemGroup>
     <ClCompile Include="Application3D.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="FbxModel.cpp" />
     <ClCompile Include="FrameBuffer.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Mirror.cpp" />
-    <ClCompile Include="Model.cpp" />
     <ClCompile Include="ParticleEngine.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneEntity.cpp" />
@@ -109,11 +109,11 @@
   <ItemGroup>
     <ClInclude Include="Application3D.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="FbxModel.h" />
     <ClInclude Include="FrameBuffer.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mirror.h" />
-    <ClInclude Include="Model.h" />
     <ClInclude Include="ParticleEngine.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneEntity.h" />

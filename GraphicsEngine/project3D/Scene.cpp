@@ -8,7 +8,7 @@
 
 Scene* Scene::_instance = 0;
 map<string, aie::Texture*> Scene::_TextureCache = map<string, aie::Texture*>();
-map<string, Model*> Scene::_ModelCache = map<string, Model*>();
+map<string, FbxModel*> Scene::_ModelCache = map<string, FbxModel*>();
 
 
 Scene* Scene::Instance() {
@@ -158,11 +158,20 @@ void Scene::Update(float deltaTime) {
 	m_camera.update(deltaTime);
 }
 
-void Scene::Draw( SceneEntity* exclude) {
+void Scene::Draw( SceneEntity* mirrorEntity) {
 	
 	for (auto entity : _Entities) {
 
-		if (entity == exclude) continue; // Check we're not rendering the current mirror
+		if (entity == mirrorEntity) continue; // Check we're not rendering the current mirror
+		
+		if (entity->m_mirror != 0) { // This is a mirror
+			if (mirrorEntity == 0) {
+				// We're in main draw and this is a mirror, let's update the reflection.
+				entity->m_mirror->Begin();
+				this->Draw(entity);
+				entity->m_mirror->End();
+			}
+		}
 		
 		// Bind Shader
 		entity->m_shader->MakeActive();
@@ -212,7 +221,7 @@ void Scene::Draw( SceneEntity* exclude) {
 			// break;
 		}
 
-		for (unsigned int i = 0; i < skelCount; ++i ) {
+		for (unsigned int i = 0; i < skelCount; ++i) {
 			FBXSkeleton* skeleton = entity->m_model->m_fbx->getSkeletonByIndex(i);
 			skeleton->updateBones();
 
@@ -228,18 +237,18 @@ void Scene::Draw( SceneEntity* exclude) {
 	}
 }
 
-Model* Scene::CachedModel(string filename) {
+FbxModel* Scene::CachedModel(string filename) {
 
 	std::cout << "Loading Model: " << filename << std::flush;
 
-	std::map<std::string, Model*>::iterator iter = _ModelCache.find(filename);
+	std::map<std::string, FbxModel*>::iterator iter = _ModelCache.find(filename);
 	if (iter != _ModelCache.end()) {
 
 		std::cout << " - Already Cached!" << std::endl;
 		return iter->second;
 	}
 
-	auto model = new Model(filename);
+	auto model = new FbxModel(filename);
 	std::cout << " - Done!" << std::endl;
 
 	_ModelCache[filename] = model;
@@ -270,7 +279,7 @@ Shader* Scene::CachedShader(string pseudonym, string vertexFilename, string frag
 	return Shader::GetShader(pseudonym);
 }
 
-SceneEntity* Scene::CreateEntity(Model* model, Shader* shader, float scaleFactor) {
+SceneEntity* Scene::CreateEntity(FbxModel* model, Shader* shader, float scaleFactor) {
 	auto entity = new SceneEntity(model, shader, scaleFactor);
 	
 	_Entities.push_back(entity);

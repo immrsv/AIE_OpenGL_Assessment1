@@ -1,4 +1,4 @@
-#include "Model.h"
+#include "FbxModel.h"
 
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
@@ -16,8 +16,7 @@ struct Vertex {
 	glm::vec4 color;
 };
 
-
-Model::Model(std::string filename)
+FbxModel::FbxModel(std::string filename)
 {
 	m_fbx = new FBXFile();
 	m_fbx->load(filename.c_str());
@@ -25,13 +24,12 @@ Model::Model(std::string filename)
 }
 
 
-Model::~Model()
+FbxModel::~FbxModel()
 {
 }
 
-
-void Model::pushToGfx()
-{	
+void FbxModel::pushToGfx()
+{
 	for (unsigned int i = 0; i < m_fbx->getMeshCount(); ++i) {
 
 		FBXMeshNode* mesh = m_fbx->getMeshByIndex(i);
@@ -66,7 +64,7 @@ void Model::pushToGfx()
 		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(FBXVertex), (void*)FBXVertex::IndicesOffset);
 
 		glBindVertexArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, 0); 
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 		mesh->m_userData = glData;
@@ -75,7 +73,7 @@ void Model::pushToGfx()
 }
 
 
-void Model::draw() {
+void FbxModel::draw() {
 
 	// bind our vertex array object and draw the mesh 
 	for (unsigned int i = 0; i < m_fbx->getMeshCount(); ++i) {
@@ -85,5 +83,5 @@ void Model::draw() {
 
 		glBindVertexArray(glData[0]);
 		glDrawElements(GL_TRIANGLES, (unsigned int)mesh->m_indices.size(), GL_UNSIGNED_INT, 0);
-	}	
+	}
 }

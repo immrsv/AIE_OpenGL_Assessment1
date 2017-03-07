@@ -94,7 +94,7 @@ void FrameBuffer::DrawToScreen() {
 	m_shader->SetVec2("texelSize", m_texelSize);
 
 	glBindVertexArray(m_VAO);
-	glDrawArrays(GL_TRIANGLES, 0, 6);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
 	err = glGetError();
 	if (err != GL_NO_ERROR)
@@ -107,11 +107,9 @@ void FrameBuffer::buildQuad() {
 	float vertices[] =
 	{
 		-1, -1, 0, 1, halfTexel[0], halfTexel[1],
-		1, 1, 0, 1, coverage[0] - halfTexel[0], coverage[1] - halfTexel[1],
-		-1, 1, 0, 1, halfTexel[0], coverage[1] - halfTexel[1],
-		-1, -1, 0, 1, halfTexel[0], halfTexel[1],
 		1, -1, 0, 1, coverage[0] - halfTexel[0], halfTexel[1],
 		1, 1, 0, 1, coverage[0] - halfTexel[0], coverage[1] - halfTexel[1],
+		-1, 1, 0, 1, halfTexel[0], coverage[1] - halfTexel[1],
 	};
 
 	m_texelSize[0] = halfTexel[0] * 2;
@@ -123,7 +121,7 @@ void FrameBuffer::buildQuad() {
 	glGenBuffers(1, &m_VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 6, vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, vertices, GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(0); // position
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 6, 0);

@@ -4,6 +4,7 @@
 #include "Camera.h"
 #include <glm/glm.hpp>
 #include "Transform.h"
+#include "Shader.h"
 
 using glm::vec2;
 using glm::vec3;
@@ -12,23 +13,22 @@ using glm::mat4;
 class Mirror
 {
 public:
-	Mirror(vec3 position, glm::quat orientation, vec2 size, float quality = 1.0f);
+	Mirror(vec2 size); // X/Y Plane centered on Origin.
 	~Mirror();
 
 	FrameBuffer m_buffer;
-
-	Transform m_transform;
+	Shader* m_shader;
 
 	vec2 m_size;
 
-	float m_reflectivity;
 
-	Camera reflect(Camera& view);
+	Camera reflect(Transform* mirror, Transform* camera);
 	void Init();
+
 	void Begin();
 	void End();
 
-	void Draw();
+	void draw();
 
 private:
 	const int width = 512;

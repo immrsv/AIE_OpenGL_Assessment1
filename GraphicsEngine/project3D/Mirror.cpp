@@ -1,9 +1,11 @@
 #include "Mirror.h"
 
 #include <gl_core_4_4.h>
+#include <iostream>
+#include <glm/ext.hpp>
 
-Mirror::Mirror(vec3 position, glm::quat orientation, vec2 size, float quality)
-	: m_transform(position, orientation), m_size(size), m_reflectivity(quality)
+Mirror::Mirror(vec2 size)
+	: m_size(size)
 {
 }
 
@@ -13,14 +15,14 @@ Mirror::~Mirror()
 }
 
 
-Camera Mirror::reflect(Camera& camera) {
+Camera Mirror::reflect(Transform* mirror, Transform* camera) {
 	
-	mat4 transform = m_transform.getMatrix();
+	mat4 transform = mirror->getMatrix();
 
 	vec3 worldNormal = vec3(transform * vec4(Transform::vOut,0));
 	
 	// Position and orientation
-	vec3 view = camera.getPosition() - m_transform.getPosition();	// Vector from centre point to camera
+	vec3 view = camera->getPosition() - mirror->getPosition();	// Vector from centre point to camera
 	vec3 nView = glm::normalize(view);								// Normalised vector
 
 	vec3 axis = glm::cross(nView, worldNormal);						// Find axis of rotation from view to normal
@@ -34,8 +36,8 @@ Camera Mirror::reflect(Camera& camera) {
 
 	// Construct Camera
 	Camera result;
-	result.setOrientation(m_transform.getOrientation());
-	result.setPosition(camera.getPosition() + rView);
+	result.setOrientation(mirror->getOrientation());
+	result.setPosition(camera->getPosition() + rView);
 
 
 	// Configure Frustum
@@ -62,18 +64,41 @@ void Mirror::Init() {
 	m_buffer.Init(500,500);
 }
 
+void Mirror::Begin() {
+	m_buffer.Begin();
+}
 
+void Mirror::End() {
+	m_buffer.End();
+}
+
+void Mirror::draw() {
+	// draw out full-screen quad
+	GLenum err;
+	err = glGetError();
+	if (err != GL_NO_ERROR)
+		std::cerr << "Mirror::Draw() - Pre Draw : " << err << std::endl;
+
+	m_shader->MakeActive();
+	m_shader->SetTexture("decal", 0, m_buffer.m_TexId);
+	//m_shader->SetVec2("texelSize", m_texelSize);
+
+	glBindVertexArray(m_VAO);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
+	err = glGetError();
+	if (err != GL_NO_ERROR)
+		std::cerr << "Mirror::Draw() - Post Draw : " << err << std::endl;
+}
 
 void Mirror::buildQuad() {
 	float halfTexel[] = { 0.5 / width, 0.5 / height };
-	float vertices[] =
+	float vertices[] = // Texture must be flipped on X (around Y)
 	{
-		-1, -1, 0, 1, halfTexel[0], halfTexel[1],
-		1, 1, 0, 1, 1 - halfTexel[0], 1 - halfTexel[1],
-		-1, 1, 0, 1, halfTexel[0], 1 - halfTexel[1],
-		-1, -1, 0, 1, halfTexel[0], halfTexel[1],
-		1, -1, 0, 1, 1 - halfTexel[0], halfTexel[1],
-		1, 1, 0, 1, 1 - halfTexel[0], 1 - halfTexel[1],
+		-m_size.x / 2, -m_size.y / 2, 0, 1, 1 - halfTexel[0], halfTexel[1],
+		m_size.x / 2, -m_size.y / 2, 0, 1, halfTexel[0], halfTexel[1],
+		m_size.x / 2, m_size.y / 2, 0, 1, halfTexel[0], 1 - halfTexel[1],
+		-m_size.x / 2, m_size.y / 2, 0, 1, 1 - halfTexel[0], 1 - halfTexel[1]
 	};
 
 	m_texelSize[0] = halfTexel[0] * 2;
@@ -85,7 +110,7 @@ void Mirror::buildQuad() {
 	glGenBuffers(1, &m_VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 6, vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, vertices, GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(0); // position
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 6, 0);
@@ -97,3 +122,5 @@ void Mirror::buildQuad() {
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
+
+

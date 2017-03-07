@@ -9,7 +9,6 @@
 
 #include "SceneEntity.h"
 #include "Camera.h"
-#include "Model.h"
 #include "Shader.h"
 #include "Light.h"
 #include <Texture.h>
@@ -29,15 +28,15 @@ class Scene
 public:
 	static Scene* Instance();
 	
-	static Model* CachedModel(string filename);
+	static FbxModel* CachedModel(string filename);
 	static aie::Texture* CachedTexture(string filename);
 	static Shader* CachedShader(string pseudonym, string vertexFilename, string fragmentFilename);
 
-	SceneEntity* CreateEntity(Model* model, Shader* shader, float scaleFactor = 1.f);
+	SceneEntity* CreateEntity(FbxModel* model, Shader* shader, float scaleFactor = 1.f);
 	
 	void Start();
 	void Update(float deltaTime);
-	void Draw(SceneEntity* exclude = 0);
+	void Draw(SceneEntity* mirrorEntity = 0);
 
 	Camera m_camera;
 
@@ -61,7 +60,7 @@ private:
 
 	static Scene* _instance;
 	static map<string, aie::Texture*> _TextureCache;
-	static map<string, Model*> _ModelCache;
+	static map<string, FbxModel*> _ModelCache;
 
 	std::vector<SceneEntity*> _Entities;
 
