@@ -120,7 +120,9 @@ void Application3D::draw() {
 		getWindowWidth() / (float)getWindowHeight(),
 		0.1f, 1000.f));
 
-	
+	// TODO: REMOVE DEBUG
+	//Scene::Instance()->m_camera.setViewFor(vec3(0, -20, 0), glm::quat(vec3(glm::pi<float>() / 2.0f, 0, 0)));
+	//Scene::Instance()->m_camera.setProjection(glm::perspective(glm::pi<float>() * 0.25f, 1.0f, 0.1f, 1000.f));
 
 	Scene::Instance()->Draw();
 

@@ -36,7 +36,7 @@ void Scene::Start() {
 	//m_camera.setViewFor(vec3(0, 10, -10), 90.f, -45.f);
 	//m_camera.setViewFor(vec3(0, 0,0), glm::quat(vec3(3.14/4.0f, 3.14/2.0f,0 )));
 	//m_camera.setViewFor(vec3(0, 10, -15), glm::quat(vec3(-glm::pi<float>() / 5.0f, glm::pi<float>(),0)));
-	m_camera.setViewFor(vec3(0, 10, 0), glm::quat(vec3(-glm::pi<float>() / 2.0f, 0, 0)));
+	m_camera.setViewFor(vec3(0, 20, 0), glm::quat(vec3(-glm::pi<float>() / 2.0f, 0, 0)));
 
 	m_ambientLight = vec3(0.05f);
 
@@ -97,15 +97,15 @@ void Scene::Start() {
 	//entity->spin = glm::quat(glm::vec3(0, 0.5, 0));
 	//entity->GetTransform()->setPosition(vec3(-5, 0, -5));
 
-	//entity = CreateEntity(CachedModel("./models/Pyro/pyro.fbx"), Shader::GetShader("NmappedRiggedPhong"), 0.005f);
+	entity = CreateEntity(CachedModel("./models/Pyro/pyro.fbx"), Shader::GetShader("NmappedRiggedPhong"), 0.005f);
 
-	//entity->m_textures.diffuse = CachedTexture("./models/Pyro/Pyro_D.tga");
-	//entity->m_textures.normal = CachedTexture("./models/Pyro/Pyro_N.tga");
-	//entity->m_textures.specular = CachedTexture("./models/Pyro/Pyro_S.tga");
-	//entity->m_textures.weights = vec4(0, 1, 1, 0);
-	//entity->spin = glm::quat(glm::vec3(0, 0.5, 0));
-	//entity->GetTransform()->setPosition(vec3(5, 0, -5));
-	//entity->m_animSpeed = 1.4f;
+	entity->m_textures.diffuse = CachedTexture("./models/Pyro/Pyro_D.tga");
+	entity->m_textures.normal = CachedTexture("./models/Pyro/Pyro_N.tga");
+	entity->m_textures.specular = CachedTexture("./models/Pyro/Pyro_S.tga");
+	entity->m_textures.weights = vec4(0, 1, 1, 0);
+	entity->spin = glm::quat(glm::vec3(0, 0.5, 0));
+	entity->GetTransform()->setPosition(vec3(5, 0, -5));
+	entity->m_animSpeed = 1.4f;
 
 
 
@@ -181,16 +181,15 @@ void Scene::Update(float deltaTime) {
 void Scene::Predraw() {
 	for (auto entity : _Entities) {
 		//if (entity == mirrorEntity) continue; // Check we're not rendering the current mirror
-
-		if ( entity->m_mirror != 0 ) // This is a mirror, update reflect camera
-			entity->m_mirror->reflect(entity->GetTransform(), &m_camera.getView());
-
+		
 		Camera* camera = &m_camera;
 		mat4 mvp = camera->getPvMatrix() * entity->GetTransform()->getMatrix();
 
 		if (entity->isOffScreen(mvp)) continue; // Frustum Culling
 
 		if (entity->m_mirror != 0) { // This is a mirror, let's update the reflection.
+			entity->m_mirror->reflect(entity->GetTransform(), &m_camera.getView());
+
 			entity->m_mirror->Begin(); // Bind mirror buffer
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // clear buffer
 			this->Draw(entity); // Render to buffer
@@ -211,8 +210,8 @@ void Scene::Draw( SceneEntity* mirrorEntity) {
 
 		if (entity == mirrorEntity) continue; // Check we're not rendering the current mirror
 
-		Camera* camera = &m_camera; // (mirrorEntity == 0 ? m_camera : mirrorEntity->m_mirror->reflect(mirrorEntity->GetTransform(), &m_camera.getView()));
-		//Camera* camera = &(mirrorEntity == 0 ? m_camera : mirrorEntity->m_mirror->m_camera);
+		//Camera* camera = &m_camera; // (mirrorEntity == 0 ? m_camera : mirrorEntity->m_mirror->reflect(mirrorEntity->GetTransform(), &m_camera.getView()));
+		Camera* camera = &(mirrorEntity == 0 ? m_camera : mirrorEntity->m_mirror->m_camera);
 		Shader* shader = entity->m_shader;
 
 		mat4 mvp = camera->getPvMatrix() * entity->GetTransform()->getMatrix();
@@ -234,7 +233,7 @@ void Scene::Draw( SceneEntity* mirrorEntity) {
 		shader->SetMat4("pvmMatrix", glm::value_ptr(mvp));
 		shader->SetMat4("modelMatrix", glm::value_ptr(entity->GetTransform()->getMatrix()));
 
-		shader->SetVec3("cameraPos", glm::value_ptr(m_camera.getPosition()));
+		shader->SetVec3("cameraPos", glm::value_ptr(camera->getPosition()));
 		shader->SetVec3("globalAmbient", glm::value_ptr(m_ambientLight));
 
 		shader->SetVec4("TexWeights", glm::value_ptr(entity->m_textures.weights));

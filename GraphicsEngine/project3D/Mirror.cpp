@@ -49,11 +49,12 @@ Camera& Mirror::reflect(Transform* mirror, Transform* camera) {
 
 	// Construct Camera
 	Camera& result = m_camera;
-	result.setOrientation(mirror->getOrientation());
+	result.setOrientation(mirror->getOrientation() * quat(vec3(0,glm::pi<float>(),0)));
 	result.setPosition(mirror->getPosition() + rView);
 
 	if (runOnce) std::cout << "Mirror Reflection Camera Posn : " << glm::to_string(result.getPosition()) << std::endl;
 	if (runOnce) std::cout << "Mirror Reflection Camera Direction : " << glm::to_string(result.getView().getMatrix() * vec4(-Transform::vOut,0)) << std::endl;
+	if (runOnce) std::cout << "Mirror Reflection Camera Orientation : " << glm::to_string(glm::eulerAngles(result.GetOrientation())) << std::endl;
 
 	// Configure Frustum
 	glm::vec4 topRight = glm::vec4((Transform::vUp + Transform::vRight) * vec3(m_size, 0) / 2.0f, 1); // Model Space
@@ -62,20 +63,21 @@ Camera& Mirror::reflect(Transform* mirror, Transform* camera) {
 	topRight = transform * topRight; // World Space
 	bottomLeft = transform * bottomLeft;
 
-	topRight = result.getPvMatrix() * topRight;	// Camera Space
-	bottomLeft = result.getPvMatrix() * bottomLeft;
+	topRight = result.getView().getMatrix() * topRight;	// Camera Space
+	bottomLeft = result.getView().getMatrix() * bottomLeft;
 
 	vec3 mins = glm::min(vec3(topRight), vec3(bottomLeft)); // Find mins and maxes
 	vec3 maxs = glm::max(vec3(topRight), vec3(bottomLeft));
 
-	result.setProjection(glm::frustum(mins.x, maxs.x, mins.y, maxs.y, 0.01f, 50.0f));
+	if (runOnce) std::cout << "Mirror Frustum Mins : " << glm::to_string(mins) << std::endl;
+	if (runOnce) std::cout << "Mirror Frustum Maxs : " << glm::to_string(maxs) << std::endl;
 
-	vec3 cameraDirection = vec3(result.getView().getMatrix() * vec4(-Transform::vOut, 0));
+	result.setProjection(glm::frustum(mins.x, maxs.x, mins.y, maxs.y, -mins.z - (10 * FLT_EPSILON), -1000.0f));
 
 	runOnce = false;
 
 	// Return
-	return result;
+	return m_camera;
 }
 
 void Mirror::Init() {
@@ -107,13 +109,13 @@ void Mirror::draw() {
 }
 
 void Mirror::buildQuad() {
-	float halfTexel[] = { 0.5f / width, 0.5f / height };
+	float halfTexel[] = { -0.5f / m_buffer.m_viewport[2], -0.5f / m_buffer.m_viewport[3] };
 	float vertices[] = // Texture must be flipped on X (around Y)
 	{
-		-m_size.x / 2, -m_size.y / 2, 0, 1, 1 - halfTexel[0], halfTexel[1],
-		m_size.x / 2, -m_size.y / 2, 0, 1, halfTexel[0], halfTexel[1],
-		m_size.x / 2, m_size.y / 2, 0, 1, halfTexel[0], 1 - halfTexel[1],
-		-m_size.x / 2, m_size.y / 2, 0, 1, 1 - halfTexel[0], 1 - halfTexel[1]
+		-m_size.x / 2.0f, -m_size.y / 2.0f, 0, 1, 1 - halfTexel[0], halfTexel[1],
+		m_size.x / 2.0f, -m_size.y / 2.0f, 0, 1, halfTexel[0], halfTexel[1],
+		m_size.x / 2.0f, m_size.y / 2.0f, 0, 1, halfTexel[0], 1 - halfTexel[1],
+		-m_size.x / 2.0f, m_size.y / 2.0f, 0, 1, 1 - halfTexel[0], 1 - halfTexel[1]
 	};
 
 	m_texelSize[0] = halfTexel[0] * 2;
