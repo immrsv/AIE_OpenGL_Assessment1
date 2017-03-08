@@ -35,7 +35,8 @@ void Scene::Start() {
 
 	//m_camera.setViewFor(vec3(0, 10, -10), 90.f, -45.f);
 	//m_camera.setViewFor(vec3(0, 0,0), glm::quat(vec3(3.14/4.0f, 3.14/2.0f,0 )));
-	m_camera.setViewFor(vec3(0, 10, -15), glm::quat(vec3(-glm::pi<float>() / 5.0f, glm::pi<float>(),0)));
+	//m_camera.setViewFor(vec3(0, 10, -15), glm::quat(vec3(-glm::pi<float>() / 5.0f, glm::pi<float>(),0)));
+	m_camera.setViewFor(vec3(0, 10, 0), glm::quat(vec3(-glm::pi<float>() / 2.0f, 0, 0)));
 
 	m_ambientLight = vec3(0.05f);
 
@@ -52,11 +53,11 @@ void Scene::Start() {
 	// Make Entities
 	SceneEntity* entity;
 
-	Mirror* mirror = new Mirror(vec2(10, 5));
+	Mirror* mirror = new Mirror(vec2(20, 20));
 	mirror->Init();
 	entity = CreateEntity(mirror, Shader::GetShader("BasicDecal"), 1.0f);
-	entity->GetTransform()->setPosition(vec3(0, 5, 10));
-	entity->GetTransform()->setOrientation(quat(vec3(0, glm::pi<float>(), 0)));
+	entity->GetTransform()->setPosition(vec3(0, 0, 0));
+	entity->GetTransform()->setOrientation(quat(vec3(-glm::pi<float>()/2.0, 0, 0)));
 
 
 	entity = CreateEntity(CachedModel("./models/Pyro/pyro.fbx"), Shader::GetShader("NmappedRiggedPhong"), 0.005f);
@@ -175,11 +176,34 @@ void Scene::Update(float deltaTime) {
 	m_camera.update(deltaTime);
 }
 
+
+// Predraw primarily used to update Mirror reflection textures
+void Scene::Predraw() {
+	for (auto entity : _Entities) {
+		//if (entity == mirrorEntity) continue; // Check we're not rendering the current mirror
+
+		if ( entity->m_mirror != 0 ) // This is a mirror, update reflect camera
+			entity->m_mirror->reflect(entity->GetTransform(), &m_camera.getView());
+
+		Camera* camera = &m_camera;
+		mat4 mvp = camera->getPvMatrix() * entity->GetTransform()->getMatrix();
+
+		if (entity->isOffScreen(mvp)) continue; // Frustum Culling
+
+		if (entity->m_mirror != 0) { // This is a mirror, let's update the reflection.
+			entity->m_mirror->Begin(); // Bind mirror buffer
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // clear buffer
+			this->Draw(entity); // Render to buffer
+			entity->m_mirror->End(); // Unbind buffer
+		}
+	}
+}
+
 void Scene::Draw( SceneEntity* mirrorEntity) {
 	
 	for (auto entity : _Entities) {
 
-		static bool runOnce = true;
+		static bool runOnce = false;
 		if (runOnce) {
 			std::cout << "Entity Transform: " << glm::to_string( entity->GetTransform()->getMatrix() ) << std::endl;
 			runOnce = false;
@@ -187,16 +211,14 @@ void Scene::Draw( SceneEntity* mirrorEntity) {
 
 		if (entity == mirrorEntity) continue; // Check we're not rendering the current mirror
 
-		if (entity->m_mirror != 0 && mirrorEntity == 0) { // This is a mirror && Not already proc'ing a reflection
-			// let's update the reflection.
-			entity->m_mirror->Begin(); // Bind mirror buffer
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // clear buffer
-			this->Draw(entity); // Render to buffer
-			entity->m_mirror->End(); // Unbind buffer
-		}
-
-		Camera* camera = &m_camera;// (mirrorEntity == 0 ? m_camera : mirrorEntity->m_mirror->reflect(mirrorEntity->GetTransform(), &m_camera.getView()));
+		Camera* camera = &m_camera; // (mirrorEntity == 0 ? m_camera : mirrorEntity->m_mirror->reflect(mirrorEntity->GetTransform(), &m_camera.getView()));
+		//Camera* camera = &(mirrorEntity == 0 ? m_camera : mirrorEntity->m_mirror->m_camera);
 		Shader* shader = entity->m_shader;
+
+		mat4 mvp = camera->getPvMatrix() * entity->GetTransform()->getMatrix();
+
+		if (entity->isOffScreen(mvp)) continue; // Frustum Culling
+
 
 		// Bind Shader
 		shader->MakeActive();
@@ -209,7 +231,7 @@ void Scene::Draw( SceneEntity* mirrorEntity) {
 		shader->SetVec3Array("pointLtCoeff", MAX_LIGHTS, (float*)pointLtCoeff);
 		shader->SetFloatArray("pointLtPwr", MAX_LIGHTS, (float*)pointLtPwr);
 
-		shader->SetMat4("pvmMatrix", glm::value_ptr(camera->getPvMatrix() * entity->GetTransform()->getMatrix()));
+		shader->SetMat4("pvmMatrix", glm::value_ptr(mvp));
 		shader->SetMat4("modelMatrix", glm::value_ptr(entity->GetTransform()->getMatrix()));
 
 		shader->SetVec3("cameraPos", glm::value_ptr(m_camera.getPosition()));

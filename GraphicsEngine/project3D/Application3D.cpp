@@ -102,6 +102,9 @@ void Application3D::draw() {
 
 	Gizmos::draw(Scene::Instance()->m_camera.getPvMatrix());
 
+	// Do Predraw (basically, update Mirrors)
+	Scene::Instance()->Predraw();
+
 	// Bind FBO for post-proc
 	if (usePostProc) {
 		m_fbo.SetViewport(getWindowWidth(), getWindowHeight());

@@ -37,6 +37,7 @@ public:
 
 	void Start();
 	void Update(float deltaTime);
+	void Predraw();
 	void Draw(SceneEntity* mirrorEntity = 0);
 
 	Camera m_camera;

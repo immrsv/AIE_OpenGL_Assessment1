@@ -27,3 +27,8 @@ void SceneEntity::Update(float deltaTime) {
 	m_transform->translateInWorld(drift * deltaTime);
 	m_transform->rotate(glm::slerp(glm::quat(), spin, deltaTime));
 }
+
+// Frustum Culling Check
+bool SceneEntity::isOffScreen(glm::mat4& mvp) {
+	return false;
+}

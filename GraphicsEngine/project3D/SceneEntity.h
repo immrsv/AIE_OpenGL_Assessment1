@@ -35,6 +35,7 @@ public:
 	Transform* GetTransform();
 
 	void Update(float deltaTime);
+	bool isOffScreen(glm::mat4& mvp);
 
 	float m_timestep;
 	float m_animSpeed;
