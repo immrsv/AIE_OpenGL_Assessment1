@@ -5,31 +5,18 @@
 #include <random>
 
 SceneEntity::SceneEntity(FbxModel* model, Shader* shader, float scaleFactor)
-	: m_model(model), m_shader(shader), m_scaleFactor(scaleFactor), m_timestep(0.0f), m_animSpeed(1.0f)
+	: m_model(model), m_mirror(0), m_shader(shader), m_timestep(0.0f), m_animSpeed(1.0f), m_transform(new Transform())
 {
+	m_transform->setScale(vec3(scaleFactor));
 }
 
-
-const glm::vec3& SceneEntity::GetPosition() { 
-	return m_position;  
+SceneEntity::SceneEntity(Mirror* mirror, Shader* shader, float scaleFactor)
+	: m_model(0), m_mirror(mirror), m_shader(shader), m_timestep(0.0f), m_animSpeed(1.0f), m_transform(new Transform())
+{
+	m_transform->setScale(vec3(scaleFactor));
 }
 
-void SceneEntity::SetPosition(glm::vec3 position) {
-	m_position = position;
-	m_transformNeedsUpdate = true;
-}
-
-const glm::mat4& SceneEntity::GetTransform() {
-	if (m_transformNeedsUpdate) {
-		glm::mat4 transform = glm::mat4();
-		transform = glm::translate(transform, m_position);
-		transform = transform * glm::mat4_cast(m_rotation);
-		transform = glm::scale(transform, glm::vec3(m_scaleFactor));
-
-		m_transform = transform;
-		m_transformNeedsUpdate = false;
-	}
-
+Transform* SceneEntity::GetTransform() {
 	return m_transform;
 }
 
@@ -37,16 +24,6 @@ const glm::mat4& SceneEntity::GetTransform() {
 void SceneEntity::Update(float deltaTime) {
 	m_timestep += deltaTime * m_animSpeed;
 
-	m_position += (drift * deltaTime);
-	m_rotation = m_rotation * glm::slerp(glm::quat(), spin, deltaTime);
-
-	m_transformNeedsUpdate = true;	
-}
-
-
-void SceneEntity::Predraw(Shader* shader) {
-
-	if (shader == 0) shader = m_shader;
-
-
+	m_transform->translateInWorld(drift * deltaTime);
+	m_transform->rotate(glm::slerp(glm::quat(), spin, deltaTime));
 }

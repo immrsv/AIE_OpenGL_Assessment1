@@ -7,6 +7,7 @@
 Mirror::Mirror(vec2 size)
 	: m_size(size)
 {
+	return; // breakpoint
 }
 
 
@@ -15,7 +16,7 @@ Mirror::~Mirror()
 }
 
 
-Camera Mirror::reflect(Transform* mirror, Transform* camera) {
+Camera& Mirror::reflect(Transform* mirror, Transform* camera) {
 	
 	mat4 transform = mirror->getMatrix();
 
@@ -35,7 +36,7 @@ Camera Mirror::reflect(Transform* mirror, Transform* camera) {
 
 
 	// Construct Camera
-	Camera result;
+	Camera& result = m_camera;
 	result.setOrientation(mirror->getOrientation());
 	result.setPosition(camera->getPosition() + rView);
 
@@ -47,8 +48,8 @@ Camera Mirror::reflect(Transform* mirror, Transform* camera) {
 	topRight = transform * topRight; // World Space
 	bottomLeft = transform * bottomLeft;
 
-	topRight = result.getTransform() * topRight;	// Camera Space
-	bottomLeft = result.getTransform() * bottomLeft;
+	topRight = result.getPvMatrix() * topRight;	// Camera Space
+	bottomLeft = result.getPvMatrix() * bottomLeft;
 
 	vec3 mins = glm::min(vec3(topRight), vec3(bottomLeft)); // Find mins and maxes
 	vec3 maxs = glm::max(vec3(topRight), vec3(bottomLeft));
@@ -62,6 +63,7 @@ Camera Mirror::reflect(Transform* mirror, Transform* camera) {
 
 void Mirror::Init() {
 	m_buffer.Init(500,500);
+	buildQuad();
 }
 
 void Mirror::Begin() {
@@ -79,10 +81,6 @@ void Mirror::draw() {
 	if (err != GL_NO_ERROR)
 		std::cerr << "Mirror::Draw() - Pre Draw : " << err << std::endl;
 
-	m_shader->MakeActive();
-	m_shader->SetTexture("decal", 0, m_buffer.m_TexId);
-	//m_shader->SetVec2("texelSize", m_texelSize);
-
 	glBindVertexArray(m_VAO);
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
@@ -92,7 +90,7 @@ void Mirror::draw() {
 }
 
 void Mirror::buildQuad() {
-	float halfTexel[] = { 0.5 / width, 0.5 / height };
+	float halfTexel[] = { 0.5f / width, 0.5f / height };
 	float vertices[] = // Texture must be flipped on X (around Y)
 	{
 		-m_size.x / 2, -m_size.y / 2, 0, 1, 1 - halfTexel[0], halfTexel[1],
@@ -115,8 +113,8 @@ void Mirror::buildQuad() {
 	glEnableVertexAttribArray(0); // position
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 6, 0);
 
-	glEnableVertexAttribArray(1); // UVs
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 6, ((char*)0) + 16);
+	glEnableVertexAttribArray(2); // UVs
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 6, ((char*)0) + 16);
 
 	// Detach
 	glBindVertexArray(0);

@@ -33,7 +33,8 @@ public:
 	static Shader* CachedShader(string pseudonym, string vertexFilename, string fragmentFilename);
 
 	SceneEntity* CreateEntity(FbxModel* model, Shader* shader, float scaleFactor = 1.f);
-	
+	SceneEntity* CreateEntity(Mirror* mirror, Shader* shader, float scaleFactor = 1.f);
+
 	void Start();
 	void Update(float deltaTime);
 	void Draw(SceneEntity* mirrorEntity = 0);

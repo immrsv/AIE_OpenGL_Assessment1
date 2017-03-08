@@ -32,9 +32,9 @@ public:
 	vec3 getPosition();
 
 	void setProjection(mat4 projection);
-	mat4 getView();
+	Transform& getView();
 	mat4 getProjection();
-	mat4 getTransform();
+	mat4 getPvMatrix();
 	
 private:
 	bool isDirty;

@@ -6,15 +6,17 @@ const vec3 Transform::vRight = vec3(1, 0, 0);
 const vec3 Transform::vOut = vec3(0, 0, 1);
 
 
-Transform::Transform(const vec3& position, const quat& orientation)
-	: m_position(position), m_orientation(orientation), isDirty(true)
+Transform::Transform(const vec3& position, const quat& orientation, const vec3& scale)
+	: m_position(position), m_orientation(orientation), m_scale(scale), m_invert(false), isDirty(true)
 {
 }
 
+Transform::Transform(const bool invert)
+	: m_position(), m_orientation(), m_scale(vec3(1.0f)), m_invert(invert), isDirty(true)
+{}
 
 Transform::~Transform()
-{
-}
+{}
 
 void Transform::setPosition(const vec3 & position)
 {
@@ -36,6 +38,15 @@ quat Transform::getOrientation() {
 	return m_orientation;
 }
 
+void Transform::setScale(const vec3& scale) {
+	m_scale = scale;
+	isDirty = true;
+}
+
+vec3 Transform::getScale() {
+	return m_scale;
+}
+
 vec3 Transform::translateInModel(const vec3& delta) {
 	vec3 mDelta = vec3(glm::inverse(getMatrix()) * glm::vec4(delta, 0));
 	return translateInWorld(mDelta);
@@ -55,7 +66,10 @@ quat Transform::rotate(const quat& delta) {
 
 mat4 Transform::getMatrix() {
 	if (isDirty) {
-		m_matrix = glm::inverse(glm::translate(m_position) * glm::mat4_cast(m_orientation));
+		if ( m_invert)
+			m_matrix = glm::inverse(glm::translate(m_position) * glm::mat4_cast(m_orientation)) * glm::scale(m_scale);
+		else
+			m_matrix = glm::translate(m_position) * glm::mat4_cast(m_orientation) * glm::scale(m_scale);
 		isDirty = false;
 	}
 	return m_matrix;

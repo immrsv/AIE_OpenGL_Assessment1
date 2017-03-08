@@ -149,6 +149,15 @@
     <None Include="FboQuad.vert">
       <Filter>Shader Files</Filter>
     </None>
+    <None Include="Defer.frag">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="ResolveDeferred.frag">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Decal.frag">
+      <Filter>Shader Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="TODO.txt" />

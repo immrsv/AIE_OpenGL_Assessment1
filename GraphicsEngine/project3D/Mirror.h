@@ -17,12 +17,13 @@ public:
 	~Mirror();
 
 	FrameBuffer m_buffer;
-	Shader* m_shader;
+	Camera m_camera;
+	//Shader* m_shader;
 
 	vec2 m_size;
 
 
-	Camera reflect(Transform* mirror, Transform* camera);
+	Camera& reflect(Transform* mirror, Transform* camera);
 	void Init();
 
 	void Begin();

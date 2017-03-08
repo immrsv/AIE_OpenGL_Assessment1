@@ -3,6 +3,7 @@
 #include "FbxModel.h"
 #include "Mirror.h"
 #include "Shader.h"
+#include "Transform.h"
 #include <glm/glm.hpp>
 #include <Texture.h>
 
@@ -21,24 +22,19 @@ public:
 		bool isEmissiveAmbient = false;
 	} m_textures;
 
+
+	SceneEntity(Mirror* mirror, Shader* shader, float scaleFactor);
 	SceneEntity(FbxModel* model, Shader* shader, float scaleFactor);
 
 	FbxModel* m_model;
 	Mirror* m_mirror;
 
 	Shader* m_shader;
-
-	void SetPosition(glm::vec3 pos);
-	const glm::vec3& GetPosition();
+		
 	
-	
-	const glm::mat4& GetTransform();
+	Transform* GetTransform();
 
 	void Update(float deltaTime);
-	
-
-	void Predraw(Shader* shader = 0);
-	void Draw();
 
 	float m_timestep;
 	float m_animSpeed;
@@ -47,13 +43,6 @@ public:
 	glm::quat spin = glm::quat();
 
 private:
-	glm::vec3 m_position;
-	glm::quat m_rotation;
-
-	glm::mat4 m_transform;
-	bool m_transformNeedsUpdate = true;
-
-	float m_scaleFactor = 0.1f;
-
+	Transform* m_transform;
 };
 

@@ -7,7 +7,7 @@ const float deg2rad = glm::pi<float>() / 180.f;
 Camera::Camera() : 
 	isDirty(true), 
 	m_projection(), 
-	m_view()
+	m_view(true)
 {
 }
 
@@ -103,8 +103,8 @@ vec3 Camera::getPosition()
 	return m_view.getPosition();
 }
 
-mat4 Camera::getView() {
-	return m_view.getMatrix();
+Transform& Camera::getView() {
+	return m_view;
 }
 
 mat4 Camera::getProjection() {
@@ -117,10 +117,10 @@ void Camera::setProjection(mat4 projection)
 	isDirty = true;
 }
 
-mat4 Camera::getTransform()
+mat4 Camera::getPvMatrix()
 {
 	if (isDirty) {
-		m_projectedView = getProjection() * getView();
+		m_projectedView = getProjection() * getView().getMatrix();
 		isDirty = false;
 	}
 	

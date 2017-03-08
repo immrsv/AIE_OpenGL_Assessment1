@@ -100,7 +100,7 @@ void Application3D::draw() {
 	clearScreen();
 
 
-	Gizmos::draw(Scene::Instance()->m_camera.getTransform());
+	Gizmos::draw(Scene::Instance()->m_camera.getPvMatrix());
 
 	// Bind FBO for post-proc
 	if (usePostProc) {

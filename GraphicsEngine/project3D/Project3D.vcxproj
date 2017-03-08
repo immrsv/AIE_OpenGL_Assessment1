@@ -128,6 +128,8 @@
     <None Include="Basic.vert">
       <DeploymentContent>false</DeploymentContent>
     </None>
+    <None Include="Decal.frag" />
+    <None Include="Defer.frag" />
     <None Include="FboQuad.frag" />
     <None Include="FboQuad.vert" />
     <None Include="Lighted.frag" />
@@ -137,6 +139,7 @@
     <None Include="NmapRigged.vert" />
     <None Include="PBRMaps.frag" />
     <None Include="PhongMaps.frag" />
+    <None Include="ResolveDeferred.frag" />
     <None Include="Rigging.frag" />
     <None Include="Rigging.vert" />
     <None Include="Textured.frag" />

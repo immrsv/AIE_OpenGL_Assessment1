@@ -38,6 +38,12 @@ void FrameBuffer::Init(int width, int height) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+	//float color[] = { 1.0f, 0.0f, 0.0f, 1.0f };
+	//glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, color);
+
 	// attach this texture and its data to the current framebuffer
 
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_TexId, 0);
@@ -102,7 +108,7 @@ void FrameBuffer::DrawToScreen() {
 }
 
 void FrameBuffer::buildQuad() {
-	float halfTexel[] = { 0.5 / m_viewport[2], 0.5 / m_viewport[3] };
+	float halfTexel[] = { 0.5f / m_viewport[2], 0.5f / m_viewport[3] };
 	float coverage[] = { m_viewport[2] / (float)max_width, m_viewport[3] / (float)max_height };
 	float vertices[] =
 	{
@@ -143,7 +149,7 @@ void FrameBuffer::SetViewport(int width, int height) {
 
 
 		if (hasQuad) {
-			float halfTexel[] = { 0.5 / m_viewport[2], 0.5 / m_viewport[3] };
+			float halfTexel[] = { 0.5f / m_viewport[2], 0.5f / m_viewport[3] };
 			float coverage[] = { width / (float)max_width, height / (float)max_height };
 			float vertices[] =
 			{

@@ -22,7 +22,7 @@ public:
 
 protected:
 
-	bool usePostProc = true;
+	bool usePostProc = false;
 
 	FrameBuffer m_fbo;
 
