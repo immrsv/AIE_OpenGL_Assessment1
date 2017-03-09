@@ -10,7 +10,7 @@ public:
 	FrameBuffer();
 	~FrameBuffer();
 
-	void Init(int width, int height);
+	void Init(int width, int height, unsigned int count = 1);
 
 	void Begin();
 	void End();
@@ -21,7 +21,8 @@ public:
 	int m_viewport[4];
 	float m_texelSize[2];
 
-	unsigned int m_TexId;
+	unsigned int m_texCount;
+	unsigned int* m_TexId;
 	unsigned int m_DepthId;
 	unsigned int m_FBO; // Frame Buffer
 	unsigned int m_VAO; // Quad
@@ -33,6 +34,7 @@ public:
 
 private:
 	int m_oldViewport[4];
+	float m_oldClearColor[4];
 	bool hasQuad = false;
 	void buildQuad();
 

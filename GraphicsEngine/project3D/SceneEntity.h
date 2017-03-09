@@ -4,6 +4,7 @@
 #include "Mirror.h"
 #include "Shader.h"
 #include "Transform.h"
+#include "BoundingBox.h"
 #include <glm/glm.hpp>
 #include <Texture.h>
 
@@ -30,7 +31,8 @@ public:
 	Mirror* m_mirror;
 
 	Shader* m_shader;
-		
+	
+	BoundingBox* m_bounds = 0;
 	
 	Transform* GetTransform();
 

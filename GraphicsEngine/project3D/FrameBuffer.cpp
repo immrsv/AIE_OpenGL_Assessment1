@@ -11,9 +11,23 @@ FrameBuffer::FrameBuffer()
 
 FrameBuffer::~FrameBuffer()
 {
+	glDeleteRenderbuffers(1, &m_DepthId);
+	glDeleteTextures(m_texCount, m_TexId);
+	glDeleteFramebuffers(1, &m_FBO);
+
+	if (hasQuad) {
+		glDeleteBuffers(1, &m_VBO);
+		glDeleteVertexArrays(1, &m_VAO);
+	}
 }
 
-void FrameBuffer::Init(int width, int height) {
+void FrameBuffer::Init(int width, int height, unsigned int count) {
+	if (count < 1) throw "FrameBuffer::Init() - Argument Exception, count < 1";
+
+
+	m_texCount = count;
+	m_TexId = new unsigned int[m_texCount];
+
 	m_viewport[0] = m_viewport[1] = 0;
 	m_viewport[2] = width;
 	m_viewport[3] = height;
@@ -29,24 +43,32 @@ void FrameBuffer::Init(int width, int height) {
 	glGenFramebuffers(1, &m_FBO);
 	glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
 
-	glGenTextures(1, &m_TexId);
-	glBindTexture(GL_TEXTURE_2D, m_TexId);
+	// Generate Textures
+	glGenTextures(m_texCount, m_TexId);
+	GLenum* drawBuffers = new GLenum[m_texCount];
 
-	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, 1920, 1080);
+	for (int i = 0; i < m_texCount; i++) {
+		
+		glBindTexture(GL_TEXTURE_2D, m_TexId[i]);
 
-	// set some filtering parameters on the texture.
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, 1920, 1080);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+		// set some filtering parameters on the texture.
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	float color[] = { 1.0f, 0.0f, 0.0f, 1.0f };
-	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, color);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
-	// attach this texture and its data to the current framebuffer
+		float color[] = { 1.0f, 0.0f, 0.0f, 1.0f };
+		glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, color);
 
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_TexId, 0);
+		// attach this texture and its data to the current framebuffer
+		drawBuffers[i] = GL_COLOR_ATTACHMENT0 + i;
+		glFramebufferTexture(GL_FRAMEBUFFER, drawBuffers[i], m_TexId[i], 0);
+
+		
+	}
 
 	// create a new depth buffer and set it as the current one
 	glGenRenderbuffers(1, &m_DepthId);
@@ -59,8 +81,6 @@ void FrameBuffer::Init(int width, int height) {
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_DepthId);
 
 	// test everything's set up correctly
-	GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
-
 	glDrawBuffers(1, drawBuffers);
 
 	GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
@@ -77,13 +97,15 @@ void FrameBuffer::Init(int width, int height) {
 
 void FrameBuffer::Begin() {
 	glGetIntegerv(GL_VIEWPORT, m_oldViewport); // Cache "normal" viewport
+	glGetFloatv(GL_COLOR_CLEAR_VALUE, m_oldClearColor); // Cache clear color
 	glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
 	glViewport(m_viewport[0], m_viewport[1], m_viewport[2], m_viewport[3]);
 }
 
 void FrameBuffer::End() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glViewport(m_oldViewport[0], m_oldViewport[1], m_oldViewport[2], m_oldViewport[3]);
+	glClearColor(m_oldClearColor[0], m_oldClearColor[1], m_oldClearColor[2], m_oldClearColor[3]);
+	glViewport(m_oldViewport[0], m_oldViewport[1], m_oldViewport[2], m_oldViewport[3]); // Restore "normal" viewport
 }
 
 void FrameBuffer::DrawToScreen() {
@@ -96,7 +118,7 @@ void FrameBuffer::DrawToScreen() {
 		std::cerr << "FrameBuffer::DrawToScreen() - Pre Draw | " << err << std::endl;
 
 	m_shader->MakeActive();
-	m_shader->SetTexture("decal", 0, m_TexId);
+	m_shader->SetTexture("decal", 0, m_TexId[0]);
 	m_shader->SetVec2("texelSize", m_texelSize);
 
 	glBindVertexArray(m_VAO);
@@ -138,6 +160,8 @@ void FrameBuffer::buildQuad() {
 	// Detach
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	hasQuad = true;
 }
 
 void FrameBuffer::SetViewport(int width, int height) {
@@ -150,15 +174,13 @@ void FrameBuffer::SetViewport(int width, int height) {
 
 		if (hasQuad) {
 			float halfTexel[] = { 0.5f / m_viewport[2], 0.5f / m_viewport[3] };
-			float coverage[] = { width / (float)max_width, height / (float)max_height };
+			float coverage[] = { m_viewport[2] / (float)max_width, m_viewport[3] / (float)max_height };
 			float vertices[] =
 			{
 				-1, -1, 0, 1, halfTexel[0], halfTexel[1],
-				1, 1, 0, 1, coverage[0] - halfTexel[0], coverage[1] - halfTexel[1],
-				-1, 1, 0, 1, halfTexel[0], coverage[1] - halfTexel[1],
-				-1, -1, 0, 1, halfTexel[0], halfTexel[1],
 				1, -1, 0, 1, coverage[0] - halfTexel[0], halfTexel[1],
 				1, 1, 0, 1, coverage[0] - halfTexel[0], coverage[1] - halfTexel[1],
+				-1, 1, 0, 1, halfTexel[0], coverage[1] - halfTexel[1],
 			};
 
 			m_texelSize[0] = halfTexel[0] * 2;
@@ -168,7 +190,7 @@ void FrameBuffer::SetViewport(int width, int height) {
 			glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
 
 			//glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * 6 * 6, vertices);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 6, vertices, GL_STATIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, vertices, GL_STATIC_DRAW);
 
 			glEnableVertexAttribArray(0); // position
 			glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 6, 0);

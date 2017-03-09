@@ -30,5 +30,5 @@ void SceneEntity::Update(float deltaTime) {
 
 // Frustum Culling Check
 bool SceneEntity::isOffScreen(glm::mat4& mvp) {
-	return false;
+	return m_bounds == 0 ? false : m_bounds->isOffScreen(mvp);
 }

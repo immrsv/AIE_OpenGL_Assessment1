@@ -36,7 +36,7 @@ void Scene::Start() {
 	//m_camera.setViewFor(vec3(0, 10, -10), 90.f, -45.f);
 	//m_camera.setViewFor(vec3(0, 0,0), glm::quat(vec3(3.14/4.0f, 3.14/2.0f,0 )));
 	//m_camera.setViewFor(vec3(0, 10, -15), glm::quat(vec3(-glm::pi<float>() / 5.0f, glm::pi<float>(),0)));
-	m_camera.setViewFor(vec3(0, 20, 0), glm::quat(vec3(-glm::pi<float>() / 2.0f, 0, 0)));
+	m_camera.setViewFor(vec3(10, 20, 0), glm::quat(vec3(-glm::pi<float>() / 2.0f, 0, 0)));
 
 	m_ambientLight = vec3(0.05f);
 
@@ -67,7 +67,8 @@ void Scene::Start() {
 	entity->m_textures.specular = CachedTexture("./models/Pyro/Pyro_S.tga");
 	entity->m_textures.weights = vec4(0, 1, 1, 0);
 	entity->spin = glm::quat(glm::vec3(0, 0.5, 0));
-	//entity->GetTransform()->setPosition(vec3(5, 0, 5));
+	entity->GetTransform()->setPosition(vec3(-10, 0, 0));
+	entity->m_bounds = new BoundingBox(vec3(-2, -2, 0) / entity->GetTransform()->getScale(), vec3(2, 2, 2) / entity->GetTransform()->getScale());
 
 	//entity = CreateEntity(CachedModel("./models/Pyro/pyro.fbx"), Shader::GetShader("NmappedRiggedPhong"), 0.005f);
 
@@ -106,6 +107,8 @@ void Scene::Start() {
 	entity->spin = glm::quat(glm::vec3(0, 0.5, 0));
 	entity->GetTransform()->setPosition(vec3(5, 0, -5));
 	entity->m_animSpeed = 1.4f;
+
+	entity->m_bounds = new BoundingBox(vec3(-2, -2, 0) / entity->GetTransform()->getScale(), vec3(2, 2, 2) / entity->GetTransform()->getScale());
 
 
 
@@ -246,7 +249,7 @@ void Scene::Draw( SceneEntity* mirrorEntity) {
 
 
 		if (entity->m_mirror != 0) { // This is a Mirror
-			shader->SetTexture("decal", 0, entity->m_mirror->m_buffer.m_TexId);
+			shader->SetTexture("decal", 0, entity->m_mirror->m_buffer.m_TexId[0]);
 			entity->m_mirror->draw();
 		}
 
