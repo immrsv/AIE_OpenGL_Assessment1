@@ -56,6 +56,8 @@ public:
 	vec3 pointLtCoeff[MAX_LIGHTS];
 	float pointLtPwr[MAX_LIGHTS];
 
+	bool m_drawBounds = true;
+
 private:
 	Scene();
 	~Scene();
@@ -66,6 +68,6 @@ private:
 
 	std::vector<SceneEntity*> _Entities;
 
-
+	Shader* m_boundsShader;
 };
 

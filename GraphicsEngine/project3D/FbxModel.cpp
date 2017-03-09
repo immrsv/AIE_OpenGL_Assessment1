@@ -26,6 +26,12 @@ FbxModel::FbxModel(std::string filename)
 
 FbxModel::~FbxModel()
 {
+	for (unsigned int i = 0; i < m_fbx->getMeshCount(); ++i) {
+		FBXMeshNode* mesh = m_fbx->getMeshByIndex(i);
+
+		glDeleteBuffers(2, (unsigned int*)(mesh->m_userData) + 1);
+		glDeleteVertexArrays(1, (unsigned int*)(mesh->m_userData));
+	}
 }
 
 void FbxModel::pushToGfx()
@@ -40,8 +46,7 @@ void FbxModel::pushToGfx()
 		glGenVertexArrays(1, &glData[0]);
 		glBindVertexArray(glData[0]);
 
-		glGenBuffers(1, &glData[1]);
-		glGenBuffers(1, &glData[2]);
+		glGenBuffers(2, &glData[1]);
 
 		glBindBuffer(GL_ARRAY_BUFFER, glData[1]);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glData[2]);

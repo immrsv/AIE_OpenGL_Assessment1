@@ -33,13 +33,6 @@ Scene::~Scene()
 
 void Scene::Start() {
 
-	//m_camera.setViewFor(vec3(0, 10, -10), 90.f, -45.f);
-	//m_camera.setViewFor(vec3(0, 0,0), glm::quat(vec3(3.14/4.0f, 3.14/2.0f,0 )));
-	//m_camera.setViewFor(vec3(0, 10, -15), glm::quat(vec3(-glm::pi<float>() / 5.0f, glm::pi<float>(),0)));
-	m_camera.setViewFor(vec3(10, 20, 0), glm::quat(vec3(-glm::pi<float>() / 2.0f, 0, 0)));
-
-	m_ambientLight = vec3(0.05f);
-
 	// Load Shaders
 	//Shader::CompileShaders("DefaultShader", "../Project3D/Basic.vert", "../Project3D/Basic.frag");
 	//Shader::CompileShaders("LightedShader", "../Project3D/Lighted.vert", "../Project3D/Lighted.frag");
@@ -49,6 +42,18 @@ void Scene::Start() {
 	//Shader::CompileShaders("NmappedRiggedBasic", "../Project3D/NmapRigged.vert", "../Project3D/Basic.frag");
 	Shader::CompileShaders("NmappedRiggedPhong", "../Project3D/NmapRigged.vert", "../Project3D/PhongMaps.frag");
 	Shader::CompileShaders("BasicDecal", "../Project3D/Basic.vert", "../Project3D/Decal.frag");
+
+	m_boundsShader = Shader::GetShader("BasicDecal");
+
+	// Define start camera
+	//m_camera.setViewFor(vec3(0, 10, -10), 90.f, -45.f);
+	//m_camera.setViewFor(vec3(0, 0,0), glm::quat(vec3(3.14/4.0f, 3.14/2.0f,0 )));
+	//m_camera.setViewFor(vec3(0, 10, -15), glm::quat(vec3(-glm::pi<float>() / 5.0f, glm::pi<float>(),0)));
+	m_camera.setViewFor(vec3(10, 20, 0), glm::quat(vec3(-glm::pi<float>() / 2.0f, 0, 0)));
+
+	m_ambientLight = vec3(0.05f);
+
+
 
 	// Make Entities
 	SceneEntity* entity;
@@ -68,7 +73,7 @@ void Scene::Start() {
 	entity->m_textures.weights = vec4(0, 1, 1, 0);
 	entity->spin = glm::quat(glm::vec3(0, 0.5, 0));
 	entity->GetTransform()->setPosition(vec3(-10, 0, 0));
-	entity->m_bounds = new BoundingBox(vec3(-2, -2, 0) / entity->GetTransform()->getScale(), vec3(2, 2, 2) / entity->GetTransform()->getScale());
+	entity->m_bounds = new BoundingBox(vec3(-2, 0, -2) / entity->GetTransform()->getScale(), vec3(2, 10, 2) / entity->GetTransform()->getScale());
 
 	//entity = CreateEntity(CachedModel("./models/Pyro/pyro.fbx"), Shader::GetShader("NmappedRiggedPhong"), 0.005f);
 
@@ -108,7 +113,7 @@ void Scene::Start() {
 	entity->GetTransform()->setPosition(vec3(5, 0, -5));
 	entity->m_animSpeed = 1.4f;
 
-	entity->m_bounds = new BoundingBox(vec3(-2, -2, 0) / entity->GetTransform()->getScale(), vec3(2, 2, 2) / entity->GetTransform()->getScale());
+	entity->m_bounds = new BoundingBox(vec3(-2, 0, -2) / entity->GetTransform()->getScale(), vec3(2, 10, 2) / entity->GetTransform()->getScale());
 
 
 
@@ -242,14 +247,14 @@ void Scene::Draw( SceneEntity* mirrorEntity) {
 		shader->SetVec4("TexWeights", glm::value_ptr(entity->m_textures.weights));
 
 		if (entity->m_textures.diffuse) shader->SetTexture("diffuseTex", 0, entity->m_textures.diffuse->getHandle());
-		if (entity->m_textures.diffuse) shader->SetTexture("decal", 0, entity->m_textures.diffuse->getHandle());
 		if (entity->m_textures.specular) shader->SetTexture("specularTex", 1, entity->m_textures.specular->getHandle());
 		if (entity->m_textures.normal) shader->SetTexture("normalTex", 2, entity->m_textures.normal->getHandle());
 		if (entity->m_textures.ambient) shader->SetTexture("ambientTex", 3, entity->m_textures.ambient->getHandle());
 
 
 		if (entity->m_mirror != 0) { // This is a Mirror
-			shader->SetTexture("decal", 0, entity->m_mirror->m_buffer.m_TexId[0]);
+			shader->SetTexture("decalTex", 0, entity->m_mirror->m_buffer.m_TexId[0]);
+			m_boundsShader->SetVec3("decalClr", glm::value_ptr(vec3(0)));
 			entity->m_mirror->draw();
 		}
 
@@ -283,6 +288,16 @@ void Scene::Draw( SceneEntity* mirrorEntity) {
 
 			// Draw Model
 			entity->m_model->draw();
+		}
+
+		if (m_drawBounds && entity->m_bounds != 0) {
+			m_boundsShader->MakeActive();
+			m_boundsShader->SetTexture("decalTex", 0, 0);
+			
+			m_boundsShader->SetMat4("pvmMatrix", glm::value_ptr(mvp));
+			m_boundsShader->SetVec3("decalClr", glm::value_ptr(vec3(1)));
+
+			entity->m_bounds->draw();
 		}
 	}
 }

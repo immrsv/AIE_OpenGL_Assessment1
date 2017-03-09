@@ -11,6 +11,8 @@ public:
 	static Shader* CompileShaders(std::string name, std::string vsFile, std::string fsFile);
 	static Shader* GetShader(std::string name);
 
+	~Shader();
+
 	void MakeActive();
 
 	void SetMat4(string paramName, const float* data);

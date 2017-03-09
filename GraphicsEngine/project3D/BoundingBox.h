@@ -17,5 +17,17 @@ public:
 	vec3 m_max; // Maximum bounds (Model Space)
 
 	bool isOffScreen(mat4& mvp);
+
+	void draw();
+
+private:
+	bool hasGeomtery = false;
+	void buildGeometry();
+
+	unsigned int m_VAO;
+	unsigned int m_VBO;
+	unsigned int m_VIO;
+
+
 };
 

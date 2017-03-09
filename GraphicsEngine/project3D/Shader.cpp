@@ -83,6 +83,10 @@ Shader* Shader::CompileShaders(std::string name, std::string vsFile, std::string
 	return collection[name];
 }
 
+Shader::~Shader() {
+	glDeleteProgram(_programId);
+}
+
 void Shader::MakeActive()
 {
 	glUseProgram(_programId);

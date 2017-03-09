@@ -24,6 +24,7 @@ protected:
 
 	bool usePostProc = false;
 
+
 	FrameBuffer m_fbo;
 
 };

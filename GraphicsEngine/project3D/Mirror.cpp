@@ -12,6 +12,8 @@ Mirror::Mirror(vec2 size)
 
 Mirror::~Mirror()
 {
+	glDeleteBuffers(1, &m_VBO);
+	glDeleteVertexArrays(1, &m_VAO);
 }
 
 
