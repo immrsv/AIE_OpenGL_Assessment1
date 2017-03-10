@@ -73,7 +73,7 @@ Camera& Mirror::reflect(Transform* mirror, Transform* camera) {
 	if (runOnce) std::cout << "Mirror Frustum Mins : " << glm::to_string(mins) << std::endl;
 	if (runOnce) std::cout << "Mirror Frustum Maxs : " << glm::to_string(maxs) << std::endl;
 
-	result.setProjection(glm::frustum(mins.x, maxs.x, mins.y, maxs.y, -mins.z - (10 * FLT_EPSILON), 1000.0f));
+	result.setProjection(glm::frustum(mins.x, maxs.x, mins.y, maxs.y, -mins.z, 1000.0f));
 
 	runOnce = false;
 
@@ -83,7 +83,7 @@ Camera& Mirror::reflect(Transform* mirror, Transform* camera) {
 
 void Mirror::Init() {
 	m_buffer.Init(1024,1024);
-	m_buffer.SetViewport(2048,1024);
+	//m_buffer.SetViewport(2048,1024);
 	buildQuad();
 }
 
@@ -111,7 +111,7 @@ void Mirror::draw() {
 }
 
 void Mirror::buildQuad() {
-	float halfTexel[] = { 0, 0 };// { -0.5f / m_buffer.m_viewport[2], -0.5f / m_buffer.m_viewport[3] };
+	float halfTexel[] = { -0.2, 0 };// { -0.5f / m_buffer.m_viewport[2], -0.5f / m_buffer.m_viewport[3] };
 	float vertices[] = // Texture must be flipped on X (around Y)
 	{
 		-m_size.x / 2.0f, -m_size.y / 2.0f, 0, 1, 1 - halfTexel[0], halfTexel[1],
@@ -119,9 +119,6 @@ void Mirror::buildQuad() {
 		m_size.x / 2.0f, m_size.y / 2.0f, 0, 1, halfTexel[0], 1 - halfTexel[1],
 		-m_size.x / 2.0f, m_size.y / 2.0f, 0, 1, 1 - halfTexel[0], 1 - halfTexel[1]
 	};
-
-	m_texelSize[0] = halfTexel[0] * 2;
-	m_texelSize[1] = halfTexel[1] * 2;
 
 	glGenVertexArrays(1, &m_VAO);
 	glBindVertexArray(m_VAO);

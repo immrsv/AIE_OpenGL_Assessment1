@@ -3,6 +3,8 @@
 #include <gl_core_4_4.h>
 #include <iostream>
 
+vec3 BoundingBox::ClipSpace = vec3(1,1,0);
+
 BoundingBox::BoundingBox(vec3 min, vec3 max)
 	: m_min(min), m_max(max)
 {
@@ -11,7 +13,7 @@ BoundingBox::BoundingBox(vec3 min, vec3 max)
 
 BoundingBox::~BoundingBox()
 {
-	glDeleteBuffers(1, &m_VIO);
+	glDeleteBuffers(1, &m_IBO);
 	glDeleteBuffers(1, &m_VBO);
 	glDeleteVertexArrays(1, &m_VAO);
 }
@@ -38,13 +40,10 @@ bool BoundingBox::isOffScreen(mat4& mvp) {
 		screenMax = glm::max(vec3(cCorner), screenMax);
 	}
 
-	
-
-	const vec3 edge = vec3(0.75);
 	const vec3 test = vec3(1, 1, 0);
 
-	auto offMin = glm::lessThan(screenMax * test, -edge);
-	auto offMax = glm::greaterThan(screenMin * test, edge);
+	auto offMin = glm::lessThan(screenMax * test, -BoundingBox::ClipSpace);
+	auto offMax = glm::greaterThan(screenMin * test, BoundingBox::ClipSpace);
 
 	return (glm::any(offMin) || glm::any(offMax));
 }
@@ -108,8 +107,8 @@ void BoundingBox::buildGeometry() {
 	glGenBuffers(1, &m_VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
 
-	glGenBuffers(1, &m_VIO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_VIO);
+	glGenBuffers(1, &m_IBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);
 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vec3) * 8, corners, GL_STATIC_DRAW);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(int) * 20, elements, GL_STATIC_DRAW);

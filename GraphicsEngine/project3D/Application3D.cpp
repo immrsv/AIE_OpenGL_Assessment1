@@ -6,6 +6,7 @@
 #include <imgui.h>
 
 #include "Shader.h"
+#include "Gui.h"
 
 using glm::vec2;
 using glm::vec3;
@@ -30,13 +31,20 @@ bool Application3D::startup() {
 	Gizmos::create(10000, 10000, 10000, 10000);
 
 
-	Scene::Instance()->Start();
+	Scene::instance->Start();
 
-	Scene::Instance()->m_camera.setProjection(glm::perspective(glm::pi<float>() * 0.25f,
+	Scene::instance->m_camera.setProjection(glm::perspective(glm::pi<float>() * 0.25f,
 		getWindowWidth() / (float)getWindowHeight(),
 		0.1f, 1000.f));
 
 	m_fbo.Init(getWindowWidth(), getWindowHeight());
+
+	// Bind GUI Vars
+	Gui::instance->pp_Enabled = &pp_Enabled;
+	Gui::instance->pp_BlurSize = &pp_BlurSize;
+	Gui::instance->pp_BloomSize = &pp_BloomSize;
+	Gui::instance->pp_SobelWeight = &pp_SobelWeight;
+	Gui::instance->m_fps = &m_fps;
 
 	return true;
 }
@@ -55,7 +63,7 @@ void Application3D::update(float deltaTime) {
 	float time = getTime();
 
 
-	Scene::Instance()->Update(deltaTime);
+	Scene::instance->Update(deltaTime);
 
 	// wipe the gizmos clean for this frame
 	Gizmos::clear();
@@ -100,13 +108,13 @@ void Application3D::draw() {
 	clearScreen();
 
 
-	Gizmos::draw(Scene::Instance()->m_camera.getPvMatrix());
+	Gizmos::draw(Scene::instance->m_camera.getPvMatrix());
 
 	// Do Predraw (basically, update Mirrors)
-	Scene::Instance()->Predraw();
+	Scene::instance->Predraw();
 
 	// Bind FBO for post-proc
-	if (usePostProc) {
+	if (pp_Enabled) {
 		m_fbo.SetViewport(getWindowWidth(), getWindowHeight());
 		m_fbo.Begin();
 
@@ -116,7 +124,7 @@ void Application3D::draw() {
 
 	// update perspective in case window resized
 
-	Scene::Instance()->m_camera.setProjection(glm::perspective(glm::pi<float>() * 0.25f,
+	Scene::instance->m_camera.setProjection(glm::perspective(glm::pi<float>() * 0.25f,
 		getWindowWidth() / (float)getWindowHeight(),
 		0.1f, 1000.f));
 
@@ -124,31 +132,15 @@ void Application3D::draw() {
 	//Scene::Instance()->m_camera.setViewFor(vec3(0, -20, 0), glm::quat(vec3(glm::pi<float>() / 2.0f, 0, 0)));
 	//Scene::Instance()->m_camera.setProjection(glm::perspective(glm::pi<float>() * 0.25f, 1.0f, 0.1f, 1000.f));
 
-	Scene::Instance()->Draw();
+	Scene::instance->Draw();
 
 
 	// Unbind post-proc FBO, draw to screen
-	if (usePostProc) {
+	if (pp_Enabled) {
 		m_fbo.End();
 		m_fbo.DrawToScreen();
 	}
 
-
-
-	ImGui::Begin("Render");
-	ImGui::Checkbox("Post Process", &usePostProc);
-	ImGui::End();
-
-	ImGui::Begin("Lights");
-	ImGui::SliderFloat3("Dir Light", &Scene::Instance()->m_directLightDir.x, -30, 30);
-
-	ImGui::SliderFloat3("Pt Lt Pos", &Scene::Instance()->pointLtPos[0].x, -30, 30);
-	ImGui::SliderFloat3("Pt Lt Clr", &Scene::Instance()->pointLtClr[0].x, 0, 1);
-	ImGui::SliderFloat3("Pt Lt Fall Off", &Scene::Instance()->pointLtCoeff[0].x, 0.01f, 10);
-	ImGui::SliderFloat("Pt Lt Pwr", &Scene::Instance()->pointLtPwr[0], -1, 100);
-
-	ImGui::BeginChild("Asdf");
-	ImGui::SmallButton("Click Me!");
-	ImGui::EndChild();
-	ImGui::End();
+	Gui::instance->draw();
 }
+

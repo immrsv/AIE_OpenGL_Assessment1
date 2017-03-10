@@ -5,18 +5,11 @@
 #include <gl_core_4_4.h>
 #include <FBXFile.h>
 
-
-Scene* Scene::_instance = 0;
 map<string, aie::Texture*> Scene::_TextureCache = map<string, aie::Texture*>();
 map<string, FbxModel*> Scene::_ModelCache = map<string, FbxModel*>();
 
+Scene *const Scene::instance = new Scene();
 
-Scene* Scene::Instance() {
-	if (_instance == 0)
-		_instance = new Scene();
-
-	return _instance;
-}
 Scene::Scene()
 	: m_camera()
 {
@@ -193,7 +186,7 @@ void Scene::Predraw() {
 		Camera* camera = &m_camera;
 		mat4 mvp = camera->getPvMatrix() * entity->GetTransform()->getMatrix();
 
-		if (entity->isOffScreen(mvp)) continue; // Frustum Culling
+		if (m_clipBounds && entity->isOffScreen(mvp)) continue; // Frustum Culling
 
 		if (entity->m_mirror != 0) { // This is a mirror, let's update the reflection.
 			entity->m_mirror->reflect(entity->GetTransform(), &m_camera.getView());
@@ -206,8 +199,9 @@ void Scene::Predraw() {
 	}
 }
 
-void Scene::Draw( SceneEntity* mirrorEntity) {
-	
+void Scene::Draw(SceneEntity* mirrorEntity) {
+	int clippedCount = 0;
+
 	for (auto entity : _Entities) {
 
 		static bool runOnce = false;
@@ -224,7 +218,11 @@ void Scene::Draw( SceneEntity* mirrorEntity) {
 
 		mat4 mvp = camera->getPvMatrix() * entity->GetTransform()->getMatrix();
 
-		if (entity->isOffScreen(mvp)) continue; // Frustum Culling
+		// Frustum Culling
+		if (m_clipBounds && entity->isOffScreen(mvp)) {
+			if (!mirrorEntity) clippedCount++;
+			continue; 
+		}
 
 
 		// Bind Shader
@@ -300,6 +298,18 @@ void Scene::Draw( SceneEntity* mirrorEntity) {
 			entity->m_bounds->draw();
 		}
 	}
+
+	m_clippedLastFrame = clippedCount;
+}
+
+SceneEntity* Scene::GetEntity(int idx)
+{
+	return _Entities[idx];
+}
+
+int Scene::GetEntityCount()
+{
+	return _Entities.size();
 }
 
 FbxModel* Scene::CachedModel(string filename) {

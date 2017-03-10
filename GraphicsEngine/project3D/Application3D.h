@@ -22,9 +22,14 @@ public:
 
 protected:
 
-	bool usePostProc = false;
+	// Post Processing
+	bool pp_Enabled = false;
 
+	int pp_BlurSize = 0;
+	int pp_BloomSize = 4;
+	float pp_SobelWeight = 1.0f;
 
 	FrameBuffer m_fbo;
+
 
 };

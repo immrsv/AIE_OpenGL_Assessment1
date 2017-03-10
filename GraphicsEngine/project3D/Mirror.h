@@ -32,12 +32,9 @@ public:
 	void draw();
 
 private:
-	const int width = 512;
-	const int height = 512;
 
 	unsigned int m_VAO;
 	unsigned int m_VBO;
-	float m_texelSize[2];
 
 	void buildQuad();
 };

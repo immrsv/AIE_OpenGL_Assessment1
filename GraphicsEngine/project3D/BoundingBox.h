@@ -10,6 +10,8 @@ using glm::mat4;
 class BoundingBox
 {
 public:
+	static vec3 ClipSpace;
+
 	BoundingBox(vec3 min, vec3 max);
 	~BoundingBox();
 
@@ -26,7 +28,7 @@ private:
 
 	unsigned int m_VAO;
 	unsigned int m_VBO;
-	unsigned int m_VIO;
+	unsigned int m_IBO;
 
 
 };

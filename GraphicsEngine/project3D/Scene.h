@@ -26,7 +26,7 @@ using namespace std;
 class Scene
 {
 public:
-	static Scene* Instance();
+	static Scene *const instance;
 	
 	static FbxModel* CachedModel(string filename);
 	static aie::Texture* CachedTexture(string filename);
@@ -39,6 +39,9 @@ public:
 	void Update(float deltaTime);
 	void Predraw();
 	void Draw(SceneEntity* mirrorEntity = 0);
+
+	SceneEntity* GetEntity(int idx);
+	int GetEntityCount();
 
 	Camera m_camera;
 
@@ -57,12 +60,14 @@ public:
 	float pointLtPwr[MAX_LIGHTS];
 
 	bool m_drawBounds = true;
+	bool m_clipBounds = true;
+
+	int m_clippedLastFrame;
 
 private:
 	Scene();
 	~Scene();
 
-	static Scene* _instance;
 	static map<string, aie::Texture*> _TextureCache;
 	static map<string, FbxModel*> _ModelCache;
 
