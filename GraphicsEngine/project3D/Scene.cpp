@@ -277,7 +277,7 @@ void Scene::Draw(SceneEntity* mirrorEntity) {
 
 		if (entity->m_mirror != 0) { // This is a Mirror
 			shader->SetTexture("decalTex", 0, entity->m_mirror->m_buffer.m_TexId[0]);
-			m_boundsShader->SetVec3("decalClr", glm::value_ptr(vec3(-0.02))); // "Darken" mirror
+			m_boundsShader->SetVec3("decalClr", glm::value_ptr(vec3(-0.02f))); // "Darken" mirror
 			entity->m_mirror->draw();
 		}
 
@@ -318,7 +318,7 @@ void Scene::Draw(SceneEntity* mirrorEntity) {
 			m_boundsShader->SetTexture("decalTex", 0, 0);
 			
 			m_boundsShader->SetMat4("pvmMatrix", glm::value_ptr(mvp));
-			m_boundsShader->SetVec3("decalClr", glm::value_ptr(vec3(0.64))); // Colour set to below Bloom threshold
+			m_boundsShader->SetVec3("decalClr", glm::value_ptr(vec3(0.64f))); // Colour set to below Bloom threshold
 
 			entity->m_bounds->draw();
 		}
