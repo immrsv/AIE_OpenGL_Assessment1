@@ -35,11 +35,11 @@ void Gui::draw() {
 			ImGui::TreePop();
 		}
 
-		if (ImGui::CollapsingHeader("Deferred Rendering")) {
-			ImGui::TreePush("Deferred Rendering");
-			ImGui::Text("Under Construction");
-			ImGui::TreePop();
-		}
+		//if (ImGui::CollapsingHeader("Deferred Rendering")) {
+		//	ImGui::TreePush("Deferred Rendering");
+		//	ImGui::Text("Under Construction");
+		//	ImGui::TreePop();
+		//}
 	}
 	ImGui::End();
 

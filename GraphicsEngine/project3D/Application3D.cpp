@@ -37,6 +37,7 @@ bool Application3D::startup() {
 		getWindowWidth() / (float)getWindowHeight(),
 		0.1f, 1000.f));
 
+	// Post-Proc render target
 	m_fbo.Init(1920, 1080);
 
 	// Bind GUI Vars
@@ -107,7 +108,7 @@ void Application3D::draw() {
 	// wipe the screen to the background colour
 	clearScreen();
 
-
+	// Kept gizmos separate to prove post-proc quad has "transparent background"
 	Gizmos::draw(Scene::instance->m_camera.getPvMatrix());
 
 	// Do Predraw (basically, update Mirrors)
@@ -127,10 +128,6 @@ void Application3D::draw() {
 	Scene::instance->m_camera.setProjection(glm::perspective(glm::pi<float>() * 0.25f,
 		getWindowWidth() / (float)getWindowHeight(),
 		0.1f, 1000.f));
-
-	// TODO: REMOVE DEBUG
-	//Scene::Instance()->m_camera.setViewFor(vec3(0, -20, 0), glm::quat(vec3(glm::pi<float>() / 2.0f, 0, 0)));
-	//Scene::Instance()->m_camera.setProjection(glm::perspective(glm::pi<float>() * 0.25f, 1.0f, 0.1f, 1000.f));
 
 	Scene::instance->Draw();
 

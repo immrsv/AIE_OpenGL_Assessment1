@@ -63,11 +63,24 @@ void Scene::Start() {
 	// Make Entities
 	SceneEntity* entity;
 
-	Mirror* mirror = new Mirror(vec2(20, 20));
+	Mirror* mirror;
+	//mirror = new Mirror(vec2(20, 20)); // FLOOR
+	//mirror->Init();
+	//entity = CreateEntity(mirror, Shader::GetShader("BasicDecal"), 1.0f);
+	//entity->GetTransform()->setPosition(vec3(0, 0, 0));
+	//entity->GetTransform()->setOrientation(quat(vec3(-glm::pi<float>()/2.0, 0, 0)));
+
+	mirror = new Mirror(vec2(20, 10));
 	mirror->Init();
 	entity = CreateEntity(mirror, Shader::GetShader("BasicDecal"), 1.0f);
-	entity->GetTransform()->setPosition(vec3(0, 0, 0));
-	entity->GetTransform()->setOrientation(quat(vec3(-glm::pi<float>()/2.0, 0, 0)));
+	entity->GetTransform()->setPosition(vec3(0, 5, 7));
+	entity->GetTransform()->setOrientation(quat(vec3(0,-glm::pi<float>(), 0)));
+
+	mirror = new Mirror(vec2(20, 10));
+	mirror->Init();
+	entity = CreateEntity(mirror, Shader::GetShader("BasicDecal"), 1.0f);
+	entity->GetTransform()->setPosition(vec3(0, 5, -7));
+	//entity->GetTransform()->setOrientation(0, quat(vec3(-glm::pi<float>(), 0)));
 
 
 	entity = CreateEntity(CachedModel("./models/Pyro/pyro.fbx"), Shader::GetShader("NmappedRiggedPhong"), 0.005f);
@@ -264,7 +277,7 @@ void Scene::Draw(SceneEntity* mirrorEntity) {
 
 		if (entity->m_mirror != 0) { // This is a Mirror
 			shader->SetTexture("decalTex", 0, entity->m_mirror->m_buffer.m_TexId[0]);
-			m_boundsShader->SetVec3("decalClr", glm::value_ptr(vec3(0)));
+			m_boundsShader->SetVec3("decalClr", glm::value_ptr(vec3(-0.02))); // "Darken" mirror
 			entity->m_mirror->draw();
 		}
 
