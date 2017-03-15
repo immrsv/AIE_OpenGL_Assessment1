@@ -27,6 +27,7 @@ Scene::~Scene()
 void Scene::Start() {
 
 	// Load Shaders
+#ifdef _DEBUG
 	//Shader::CompileShaders("DefaultShader", "../Project3D/Basic.vert", "../Project3D/Basic.frag");
 	//Shader::CompileShaders("LightedShader", "../Project3D/Lighted.vert", "../Project3D/Lighted.frag");
 	//Shader::CompileShaders("TexturedShader", "../Project3D/Textured.vert", "../Project3D/Textured.frag");
@@ -35,6 +36,17 @@ void Scene::Start() {
 	//Shader::CompileShaders("NmappedRiggedBasic", "../Project3D/NmapRigged.vert", "../Project3D/Basic.frag");
 	Shader::CompileShaders("NmappedRiggedPhong", "../Project3D/NmapRigged.vert", "../Project3D/PhongMaps.frag");
 	Shader::CompileShaders("BasicDecal", "../Project3D/Basic.vert", "../Project3D/Decal.frag");
+#else
+	//Shader::CompileShaders("DefaultShader", "../Project3D/Basic.vert", "../Project3D/Basic.frag");
+	//Shader::CompileShaders("LightedShader", "../Project3D/Lighted.vert", "../Project3D/Lighted.frag");
+	//Shader::CompileShaders("TexturedShader", "../Project3D/Textured.vert", "../Project3D/Textured.frag");
+	//Shader::CompileShaders("MorphingShader", "../Project3D/Morphing.vert", "../Project3D/Morphing.frag");
+	//Shader::CompileShaders("RiggingShader", "../Project3D/Rigging.vert", "../Project3D/Rigging.frag");
+	//Shader::CompileShaders("NmappedRiggedBasic", "../Project3D/NmapRigged.vert", "../Project3D/Basic.frag");
+	Shader::CompileShaders("NmappedRiggedPhong", "./Shaders/NmapRigged.vert", "./Shaders/PhongMaps.frag");
+	Shader::CompileShaders("BasicDecal", "./Shaders/Basic.vert", "./Shaders/Decal.frag");
+#endif // _DEBUG
+
 
 	m_boundsShader = Shader::GetShader("BasicDecal");
 

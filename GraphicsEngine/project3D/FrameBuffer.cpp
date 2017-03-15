@@ -29,10 +29,14 @@ void FrameBuffer::Init(int width, int height, unsigned int count) {
 	m_TexId = new unsigned int[m_texCount];
 
 	m_viewport[0] = m_viewport[1] = 0;
-	m_viewport[2] = width;
-	m_viewport[3] = height;
+	m_viewport[2] = m_textureSize[0] = width;
+	m_viewport[3] = m_textureSize[1] = height;
 
+#ifdef _DEBUG
 	m_shader = Shader::CompileShaders("FboQuad", "../Project3D/FboQuad.vert", "../Project3D/FboQuad.frag");
+#else
+	m_shader = Shader::CompileShaders("FboQuad", "./Shaders/FboQuad.vert", "./Shaders/FboQuad.frag");
+#endif
 	
 	GLenum err;
 	err = glGetError();
@@ -47,11 +51,11 @@ void FrameBuffer::Init(int width, int height, unsigned int count) {
 	glGenTextures(m_texCount, m_TexId);
 	GLenum* drawBuffers = new GLenum[m_texCount];
 
-	for (int i = 0; i < m_texCount; i++) {
+	for (unsigned int i = 0; i < m_texCount; i++) {
 		
 		glBindTexture(GL_TEXTURE_2D, m_TexId[i]);
 
-		glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, 1920, 1080);
+		glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, m_textureSize[0], m_textureSize[1]);
 
 		// set some filtering parameters on the texture.
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -131,7 +135,7 @@ void FrameBuffer::DrawToScreen() {
 
 void FrameBuffer::buildQuad() {
 	float halfTexel[] = { 0.5f / m_viewport[2], 0.5f / m_viewport[3] };
-	float coverage[] = { m_viewport[2] / (float)max_width, m_viewport[3] / (float)max_height };
+	float coverage[] = { m_viewport[2] / (float)m_textureSize[0], m_viewport[3] / (float)m_textureSize[1] };
 	float vertices[] =
 	{
 		-1, -1, 0, 1, halfTexel[0], halfTexel[1],
@@ -162,9 +166,15 @@ void FrameBuffer::buildQuad() {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	hasQuad = true;
+	//SetViewport(m_viewport[2], m_viewport[3]);
 }
 
 void FrameBuffer::SetViewport(int width, int height) {
+	if (width > m_textureSize[0] || height > m_textureSize[1]) {
+		std::cout << "FrameBuffer::SetViewport() - WARNING: Desired Viewport (" << width << "," << height
+			<< ") exceeds Texture Size (" << m_textureSize[0] << "," << m_textureSize[1] << ")" << std::endl;
+	}
+
 	if (m_viewport[2] != width || m_viewport[3] != height) {
 
 		m_viewport[0] = m_viewport[1] = 0;
@@ -174,7 +184,7 @@ void FrameBuffer::SetViewport(int width, int height) {
 
 		if (hasQuad) {
 			float halfTexel[] = { 0.5f / m_viewport[2], 0.5f / m_viewport[3] };
-			float coverage[] = { m_viewport[2] / (float)max_width, m_viewport[3] / (float)max_height };
+			float coverage[] = { m_viewport[2] / (float)m_textureSize[0], m_viewport[3] / (float)m_textureSize[1] };
 			float vertices[] =
 			{
 				-1, -1, 0, 1, halfTexel[0], halfTexel[1],

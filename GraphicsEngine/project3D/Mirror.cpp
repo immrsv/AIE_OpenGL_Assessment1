@@ -34,7 +34,7 @@ Camera& Mirror::reflect(Transform* mirror, Transform* camera) {
 	if (runOnce) std::cout << "Mirror View Vector : " << glm::to_string(view) << std::endl;
 	if (runOnce) std::cout << "Mirror Normalised View : " << glm::to_string(nView) << std::endl;
 
-	vec3 axis = glm::normalize(glm::cross(worldNormal, nView));						// Find axis of rotation from view to normal
+	vec3 axis = glm::normalize(glm::cross(worldNormal, nView));		// Find axis of rotation from view to normal
 	float halfAngle = acos(glm::dot(nView, worldNormal));			// Find angle between view and normal
 	float inverseAngle = (glm::pi<float>() / 2.0f) - halfAngle;		// Find angle between view and reflection plane
 	
@@ -111,7 +111,7 @@ void Mirror::draw() {
 }
 
 void Mirror::buildQuad() {
-	float halfTexel[] = { -0.2, 0 };// { -0.5f / m_buffer.m_viewport[2], -0.5f / m_buffer.m_viewport[3] };
+	float halfTexel[] = { 0.0f, 0.0f };// { -0.5f / m_buffer.m_viewport[2], -0.5f / m_buffer.m_viewport[3] };
 	float vertices[] = // Texture must be flipped on X (around Y)
 	{
 		-m_size.x / 2.0f, -m_size.y / 2.0f, 0, 1, 1 - halfTexel[0], halfTexel[1],

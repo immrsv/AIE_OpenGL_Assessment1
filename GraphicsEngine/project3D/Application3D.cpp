@@ -37,7 +37,7 @@ bool Application3D::startup() {
 		getWindowWidth() / (float)getWindowHeight(),
 		0.1f, 1000.f));
 
-	m_fbo.Init(getWindowWidth(), getWindowHeight());
+	m_fbo.Init(1920, 1080);
 
 	// Bind GUI Vars
 	Gui::instance->pp_Enabled = &pp_Enabled;

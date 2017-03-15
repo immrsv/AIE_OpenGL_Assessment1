@@ -19,7 +19,7 @@ void Gui::draw() {
 			ImGui::TreePush("Frustum Culling");
 			ImGui::Checkbox("Draw Bounding Boxes", &Scene::instance->m_drawBounds);
 			ImGui::Checkbox("Clip Bounding Boxes", &Scene::instance->m_clipBounds);
-			ImGui::SliderFloat2("Screen Space", glm::value_ptr(BoundingBox::ClipSpace), 0.1, 1.1);
+			ImGui::SliderFloat2("Screen Space", glm::value_ptr(BoundingBox::ClipSpace), 0.1f, 1.1f);
 			ImGui::TreePop();
 		}
 
@@ -136,8 +136,8 @@ void Gui::_onCreateEntityClicked() {
 
 	vec3 posn;
 	
-	posn.x = rand() % 20 - 10;
-	posn.z = rand() % 20 - 10;
+	posn.x = (float)(rand() % 20 - 10);
+	posn.z = (float)(rand() % 20 - 10);
 
 	entity->GetTransform()->setPosition(posn);
 
