@@ -138,6 +138,11 @@ void Application3D::draw() {
 	// Unbind post-proc FBO, draw to screen
 	if (pp_Enabled) {
 		m_fbo.End();
+		m_fbo.m_shader->MakeActive();
+		m_fbo.m_shader->SetInt("blurSize", pp_BlurSize);
+		m_fbo.m_shader->SetInt("bloomSize", pp_BloomSize);
+		m_fbo.m_shader->SetFloat("sobelWeight", pp_SobelWeight);
+
 		m_fbo.DrawToScreen();
 	}
 

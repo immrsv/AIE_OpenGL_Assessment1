@@ -26,8 +26,10 @@ public:
 	void SetFloatArray(string paramName, unsigned int arrayCount, const float* data);
 
 	void SetTexture(string paramName, unsigned int textureSlot, unsigned int textureId);
-	
+
 	void SetBool(string paramName, bool data);
+	void SetInt(string paramName, const int data);
+	void SetFloat(string paramName, const float data);
 	
 private:
 	static bool LoadShaderFromFile(const char* filePath, std::string& code);

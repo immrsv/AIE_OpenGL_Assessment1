@@ -146,3 +146,13 @@ void Shader::SetBool(string paramName, bool data) {
 	unsigned int loc = glGetUniformLocation(_programId, paramName.c_str());
 	glUniform1i(loc, (int)data);
 }
+
+void Shader::SetInt(string paramName, const int data) {
+	unsigned int loc = glGetUniformLocation(_programId, paramName.c_str());
+	glUniform1i(loc, (int)data);
+}
+
+void Shader::SetFloat(string paramName, const float data) {
+	unsigned int loc = glGetUniformLocation(_programId, paramName.c_str());
+	glUniform1f(loc, (float)data);
+}

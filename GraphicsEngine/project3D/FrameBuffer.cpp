@@ -61,8 +61,10 @@ void FrameBuffer::Init(int width, int height, unsigned int count) {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 		float color[] = { 1.0f, 0.0f, 0.0f, 1.0f };
 		glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, color);
@@ -147,10 +149,10 @@ void FrameBuffer::buildQuad() {
 	m_texelSize[0] = halfTexel[0] * 2;
 	m_texelSize[1] = halfTexel[1] * 2;
 
-	glGenVertexArrays(1, &m_VAO);
+	if (!hasQuad) glGenVertexArrays(1, &m_VAO);
 	glBindVertexArray(m_VAO);
 
-	glGenBuffers(1, &m_VBO);
+	if (!hasQuad) glGenBuffers(1, &m_VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, vertices, GL_STATIC_DRAW);
@@ -166,7 +168,6 @@ void FrameBuffer::buildQuad() {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	hasQuad = true;
-	//SetViewport(m_viewport[2], m_viewport[3]);
 }
 
 void FrameBuffer::SetViewport(int width, int height) {
@@ -176,41 +177,41 @@ void FrameBuffer::SetViewport(int width, int height) {
 	}
 
 	if (m_viewport[2] != width || m_viewport[3] != height) {
+		buildQuad();
+		//m_viewport[0] = m_viewport[1] = 0;
+		//m_viewport[2] = width;
+		//m_viewport[3] = height;
 
-		m_viewport[0] = m_viewport[1] = 0;
-		m_viewport[2] = width;
-		m_viewport[3] = height;
 
+		//if (hasQuad) {
+		//	float halfTexel[] = { 0.5f / m_viewport[2], 0.5f / m_viewport[3] };
+		//	float coverage[] = { m_viewport[2] / (float)m_textureSize[0], m_viewport[3] / (float)m_textureSize[1] };
+		//	float vertices[] =
+		//	{
+		//		-1, -1, 0, 1, halfTexel[0], halfTexel[1],
+		//		1, -1, 0, 1, coverage[0] - halfTexel[0], halfTexel[1],
+		//		1, 1, 0, 1, coverage[0] - halfTexel[0], coverage[1] - halfTexel[1],
+		//		-1, 1, 0, 1, halfTexel[0], coverage[1] - halfTexel[1],
+		//	};
 
-		if (hasQuad) {
-			float halfTexel[] = { 0.5f / m_viewport[2], 0.5f / m_viewport[3] };
-			float coverage[] = { m_viewport[2] / (float)m_textureSize[0], m_viewport[3] / (float)m_textureSize[1] };
-			float vertices[] =
-			{
-				-1, -1, 0, 1, halfTexel[0], halfTexel[1],
-				1, -1, 0, 1, coverage[0] - halfTexel[0], halfTexel[1],
-				1, 1, 0, 1, coverage[0] - halfTexel[0], coverage[1] - halfTexel[1],
-				-1, 1, 0, 1, halfTexel[0], coverage[1] - halfTexel[1],
-			};
+		//	m_texelSize[0] = halfTexel[0] * 2;
+		//	m_texelSize[1] = halfTexel[1] * 2;
 
-			m_texelSize[0] = halfTexel[0] * 2;
-			m_texelSize[1] = halfTexel[1] * 2;
+		//	glBindVertexArray(m_VAO);
+		//	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
 
-			glBindVertexArray(m_VAO);
-			glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+		//	//glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * 6 * 6, vertices);
+		//	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, vertices, GL_STATIC_DRAW);
 
-			//glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * 6 * 6, vertices);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, vertices, GL_STATIC_DRAW);
+		//	glEnableVertexAttribArray(0); // position
+		//	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 6, 0);
 
-			glEnableVertexAttribArray(0); // position
-			glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 6, 0);
+		//	glEnableVertexAttribArray(1); // UVs
+		//	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 6, ((char*)0) + 16);
 
-			glEnableVertexAttribArray(1); // UVs
-			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 6, ((char*)0) + 16);
-
-			// Detach
-			glBindVertexArray(0);
-			glBindBuffer(GL_ARRAY_BUFFER, 0);
-		}
+		//	// Detach
+		//	glBindVertexArray(0);
+		//	glBindBuffer(GL_ARRAY_BUFFER, 0);
+		//}
 	}
 }

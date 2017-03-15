@@ -305,7 +305,7 @@ void Scene::Draw(SceneEntity* mirrorEntity) {
 			m_boundsShader->SetTexture("decalTex", 0, 0);
 			
 			m_boundsShader->SetMat4("pvmMatrix", glm::value_ptr(mvp));
-			m_boundsShader->SetVec3("decalClr", glm::value_ptr(vec3(1)));
+			m_boundsShader->SetVec3("decalClr", glm::value_ptr(vec3(0.64))); // Colour set to below Bloom threshold
 
 			entity->m_bounds->draw();
 		}
