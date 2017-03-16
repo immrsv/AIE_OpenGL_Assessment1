@@ -10,6 +10,7 @@ map<string, FbxModel*> Scene::_ModelCache = map<string, FbxModel*>();
 
 Scene *const Scene::instance = new Scene();
 
+
 Scene::Scene()
 	: m_camera()
 {
@@ -64,11 +65,12 @@ void Scene::Start() {
 	SceneEntity* entity;
 
 	Mirror* mirror;
-	//mirror = new Mirror(vec2(20, 20)); // FLOOR
-	//mirror->Init();
-	//entity = CreateEntity(mirror, Shader::GetShader("BasicDecal"), 1.0f);
-	//entity->GetTransform()->setPosition(vec3(0, 0, 0));
-	//entity->GetTransform()->setOrientation(quat(vec3(-glm::pi<float>()/2.0, 0, 0)));
+	mirror = new Mirror(vec2(20, 20)); // FLOOR
+	mirror->Init();
+	entity = CreateEntity(mirror, Shader::GetShader("BasicDecal"), 1.0f);
+	entity->GetTransform()->setPosition(vec3(0, 0, 0));
+	entity->GetTransform()->setOrientation(quat(vec3(-glm::pi<float>()/2.0, 0, 0)));
+	entity->m_enabled = false;
 
 	mirror = new Mirror(vec2(20, 10));
 	mirror->Init();
@@ -146,15 +148,15 @@ void Scene::Start() {
 	//entity->spin = glm::quat(glm::vec3(0.5, 0, 0));
 	//entity->GetTransform()->setPosition(vec3(4, 0, 4));
 
-	//entity = CreateEntity(CachedModel("./models/DarkSiderGun/GUN.fbx"), Shader::GetShader("NmappedRiggedPhong"), 0.2f);
+	entity = CreateEntity(CachedModel("./models/DarkSiderGun/GUN.fbx"), Shader::GetShader("NmappedRiggedPhong"), 0.2f);
 
-	//entity->m_textures.diffuse = CachedTexture("./models/DarkSiderGun/Gun_D.tga");
-	//entity->m_textures.normal = CachedTexture("./models/DarkSiderGun/Gun_N_1.tga");
-	//entity->m_textures.specular = CachedTexture("./models/DarkSiderGun/Gun_S.tga");
-	//entity->m_textures.ambient = CachedTexture("./models/DarkSiderGun/Gun_A.tga");
-	//entity->m_textures.weights = vec4(1, 1, 1, 0);
-	//entity->spin = glm::quat(glm::vec3(1, 0, 1));
-	//entity->GetTransform()->setPosition(vec3(-4, 0, 0));
+	entity->m_textures.diffuse = CachedTexture("./models/DarkSiderGun/Gun_D.tga");
+	entity->m_textures.normal = CachedTexture("./models/DarkSiderGun/Gun_N_1.tga");
+	entity->m_textures.specular = CachedTexture("./models/DarkSiderGun/Gun_S.tga");
+	entity->m_textures.ambient = CachedTexture("./models/DarkSiderGun/Gun_A.tga");
+	entity->m_textures.weights = vec4(1, 1, 1, 0);
+	entity->spin = glm::quat(glm::vec3(1, 0, 1));
+	entity->GetTransform()->setPosition(vec3(-4, 0, 0));
 
 	//entity = CreateEntity(CachedModel("./models/DarkSiderGun/GUN.fbx"), Shader::GetShader("NmappedRiggedPhong"), 0.2f);
 
@@ -206,8 +208,10 @@ void Scene::Update(float deltaTime) {
 // Predraw primarily used to update Mirror reflection textures
 void Scene::Predraw() {
 	for (auto entity : _Entities) {
+		if (!entity->m_enabled) continue;
 		//if (entity == mirrorEntity) continue; // Check we're not rendering the current mirror
 		
+
 		Camera* camera = &m_camera;
 		mat4 mvp = camera->getPvMatrix() * entity->GetTransform()->getMatrix();
 
@@ -216,18 +220,20 @@ void Scene::Predraw() {
 		if (entity->m_mirror != 0) { // This is a mirror, let's update the reflection.
 			entity->m_mirror->reflect(entity->GetTransform(), &m_camera.getView());
 
-			entity->m_mirror->Begin(); // Bind mirror buffer
+			entity->m_mirror->begin(); // Bind mirror buffer
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // clear buffer
 			this->Draw(entity); // Render to buffer
-			entity->m_mirror->End(); // Unbind buffer
+			entity->m_mirror->end(); // Unbind buffer
 		}
 	}
 }
+
 
 void Scene::Draw(SceneEntity* mirrorEntity) {
 	int clippedCount = 0;
 
 	for (auto entity : _Entities) {
+		if (!entity->m_enabled) continue;
 
 		static bool runOnce = false;
 		if (runOnce) {
@@ -248,7 +254,6 @@ void Scene::Draw(SceneEntity* mirrorEntity) {
 			if (!mirrorEntity) clippedCount++;
 			continue; 
 		}
-
 
 		// Bind Shader
 		shader->MakeActive();
@@ -308,7 +313,6 @@ void Scene::Draw(SceneEntity* mirrorEntity) {
 				shader->SetMat4Array("bones", skeleton->m_boneCount, (float*)skeleton->m_bones);
 			}
 
-
 			// Draw Model
 			entity->m_model->draw();
 		}
@@ -327,18 +331,20 @@ void Scene::Draw(SceneEntity* mirrorEntity) {
 	m_clippedLastFrame = clippedCount;
 }
 
+
 SceneEntity* Scene::GetEntity(int idx)
 {
 	return _Entities[idx];
 }
+
 
 int Scene::GetEntityCount()
 {
 	return _Entities.size();
 }
 
-FbxModel* Scene::CachedModel(string filename) {
 
+FbxModel* Scene::CachedModel(string filename) {
 
 	std::map<std::string, FbxModel*>::iterator iter = _ModelCache.find(filename);
 	if (iter != _ModelCache.end()) {
@@ -354,8 +360,8 @@ FbxModel* Scene::CachedModel(string filename) {
 	return model;
 }
 
-aie::Texture* Scene::CachedTexture(string filename) {
 
+aie::Texture* Scene::CachedTexture(string filename) {
 	std::map<std::string, aie::Texture*>::iterator iter = _TextureCache.find(filename);
 	if (iter != _TextureCache.end()) {
 		return iter->second;
@@ -370,11 +376,13 @@ aie::Texture* Scene::CachedTexture(string filename) {
 	return tex;
 }
 
+
 Shader* Scene::CachedShader(string pseudonym, string vertexFilename, string fragmentFilename) {
 	// Shader class handles own caching
 	Shader::CompileShaders(pseudonym, vertexFilename, fragmentFilename);
 	return Shader::GetShader(pseudonym);
 }
+
 
 SceneEntity* Scene::CreateEntity(FbxModel* model, Shader* shader, float scaleFactor) {
 	auto entity = new SceneEntity(model, shader, scaleFactor);
@@ -383,6 +391,7 @@ SceneEntity* Scene::CreateEntity(FbxModel* model, Shader* shader, float scaleFac
 	return entity;
 }
 
+
 SceneEntity* Scene::CreateEntity(Mirror* mirror, Shader* shader, float scaleFactor) {
 	auto entity = new SceneEntity(mirror, shader, scaleFactor);
 
@@ -390,9 +399,8 @@ SceneEntity* Scene::CreateEntity(Mirror* mirror, Shader* shader, float scaleFact
 	return entity;
 }
 
-int Scene::AddLight(Light& light) {
 
-	
+int Scene::AddLight(Light& light) {
 	for (int i = 0; i < MAX_LIGHTS; i++) {
 		if (pointLtPwr[i] < 0.0f) {
 			pointLtPos[i] = light.Position;
@@ -406,12 +414,14 @@ int Scene::AddLight(Light& light) {
 	return -1;
 }
 
+
 Light Scene::GetLight(int idx) {
 	if (pointLtPwr[idx] < 0.0f)
 		return Light(idx, vec3(0), vec3(0), vec3(0), 0.f);
 	else
 		return Light(idx, pointLtPos[idx], pointLtClr[idx], pointLtCoeff[idx], pointLtPwr[idx]);
 }
+
 
 bool Scene::RemoveLight(int idx) {
 	if (pointLtPwr[idx] < 0.0f)

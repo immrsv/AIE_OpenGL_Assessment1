@@ -10,13 +10,13 @@ public:
 	FrameBuffer();
 	~FrameBuffer();
 
-	void Init(int width, int height, unsigned int count = 1);
+	void init(int width, int height, unsigned int count = 1);
 
-	void Begin();
-	void End();
+	void begin();
+	void end();
 
-	void SetViewport(int width, int height);
-	void DrawToScreen();
+	void setViewport(int width, int height);
+	void drawToScreen();
 
 	int m_viewport[4];
 	int m_textureSize[2];

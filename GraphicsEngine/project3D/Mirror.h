@@ -26,8 +26,8 @@ public:
 	Camera& reflect(Transform* mirror, Transform* camera);
 	void Init();
 
-	void Begin();
-	void End();
+	void begin();
+	void end();
 
 	void draw();
 

@@ -21,8 +21,8 @@ FrameBuffer::~FrameBuffer()
 	}
 }
 
-void FrameBuffer::Init(int width, int height, unsigned int count) {
-	if (count < 1) throw "FrameBuffer::Init() - Argument Exception, count < 1";
+void FrameBuffer::init(int width, int height, unsigned int count) {
+	if (count < 1) throw "FrameBuffer::init() - Argument Exception, count < 1";
 
 
 	m_texCount = count;
@@ -41,7 +41,7 @@ void FrameBuffer::Init(int width, int height, unsigned int count) {
 	GLenum err;
 	err = glGetError();
 	if (err != GL_NO_ERROR)
-		std::cerr << "FrameBuffer::Init() - Pre Init | " << err << std::endl;
+		std::cerr << "FrameBuffer::init() - Pre init | " << err << std::endl;
 
 	// Create Framebuffer on Gfx
 	glGenFramebuffers(1, &m_FBO);
@@ -91,37 +91,37 @@ void FrameBuffer::Init(int width, int height, unsigned int count) {
 
 	GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 	if (status != GL_FRAMEBUFFER_COMPLETE)
-		printf("FrameBuffer::Init() - Framebuffer Error!\n");
+		printf("FrameBuffer::init() - Framebuffer Error!\n");
 
 	// we're done! detach the frame buffer, so the current one is once again the default screen
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	err = glGetError();
 	if (err != GL_NO_ERROR)
-		std::cerr << "FrameBuffer::Init() - Post Init | " << err << std::endl;
+		std::cerr << "FrameBuffer::init() - Post init | " << err << std::endl;
 }
 
-void FrameBuffer::Begin() {
+void FrameBuffer::begin() {
 	glGetIntegerv(GL_VIEWPORT, m_oldViewport); // Cache "normal" viewport
 	glGetFloatv(GL_COLOR_CLEAR_VALUE, m_oldClearColor); // Cache clear color
 	glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
 	glViewport(m_viewport[0], m_viewport[1], m_viewport[2], m_viewport[3]);
 }
 
-void FrameBuffer::End() {
+void FrameBuffer::end() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glClearColor(m_oldClearColor[0], m_oldClearColor[1], m_oldClearColor[2], m_oldClearColor[3]);
 	glViewport(m_oldViewport[0], m_oldViewport[1], m_oldViewport[2], m_oldViewport[3]); // Restore "normal" viewport
 }
 
-void FrameBuffer::DrawToScreen() {
+void FrameBuffer::drawToScreen() {
 	if (!hasQuad) buildQuad();
 
 	// draw out full-screen quad
 	GLenum err;
 	err = glGetError();
 	if (err != GL_NO_ERROR)
-		std::cerr << "FrameBuffer::DrawToScreen() - Pre Draw | " << err << std::endl;
+		std::cerr << "FrameBuffer::drawToScreen() - Pre Draw | " << err << std::endl;
 
 	m_shader->MakeActive();
 	m_shader->SetTexture("decal", 0, m_TexId[0]);
@@ -132,7 +132,7 @@ void FrameBuffer::DrawToScreen() {
 
 	err = glGetError();
 	if (err != GL_NO_ERROR)
-		std::cerr << "FrameBuffer::DrawToScreen() - Post Draw | " << err << std::endl;
+		std::cerr << "FrameBuffer::drawToScreen() - Post Draw | " << err << std::endl;
 }
 
 void FrameBuffer::buildQuad() {
@@ -170,9 +170,9 @@ void FrameBuffer::buildQuad() {
 	hasQuad = true;
 }
 
-void FrameBuffer::SetViewport(int width, int height) {
+void FrameBuffer::setViewport(int width, int height) {
 	if (width > m_textureSize[0] || height > m_textureSize[1]) {
-		std::cout << "FrameBuffer::SetViewport() - WARNING: Desired Viewport (" << width << "," << height
+		std::cout << "FrameBuffer::setViewport() - WARNING: Desired Viewport (" << width << "," << height
 			<< ") exceeds Texture Size (" << m_textureSize[0] << "," << m_textureSize[1] << ")" << std::endl;
 	}
 

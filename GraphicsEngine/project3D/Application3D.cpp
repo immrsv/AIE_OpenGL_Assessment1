@@ -38,7 +38,7 @@ bool Application3D::startup() {
 		0.1f, 1000.f));
 
 	// Post-Proc render target
-	m_fbo.Init(1920, 1080);
+	m_fbo.init(1920, 1080);
 
 	// Bind GUI Vars
 	Gui::instance->pp_Enabled = &pp_Enabled;
@@ -116,8 +116,8 @@ void Application3D::draw() {
 
 	// Bind FBO for post-proc
 	if (pp_Enabled) {
-		m_fbo.SetViewport(getWindowWidth(), getWindowHeight());
-		m_fbo.Begin();
+		m_fbo.setViewport(getWindowWidth(), getWindowHeight());
+		m_fbo.begin();
 
 		// wipe the screen to the background colour
 		clearScreen();
@@ -134,13 +134,13 @@ void Application3D::draw() {
 
 	// Unbind post-proc FBO, draw to screen
 	if (pp_Enabled) {
-		m_fbo.End();
+		m_fbo.end();
 		m_fbo.m_shader->MakeActive();
 		m_fbo.m_shader->SetInt("blurSize", pp_BlurSize);
 		m_fbo.m_shader->SetInt("bloomSize", pp_BloomSize);
 		m_fbo.m_shader->SetFloat("sobelWeight", pp_SobelWeight);
 
-		m_fbo.DrawToScreen();
+		m_fbo.drawToScreen();
 	}
 
 	Gui::instance->draw();

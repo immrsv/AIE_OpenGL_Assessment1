@@ -5,7 +5,7 @@
 const float deg2rad = glm::pi<float>() / 180.f;
 
 Camera::Camera() : 
-	isDirty(true), 
+	m_isDirty(true), 
 	m_projection(), 
 	m_view(true)
 {
@@ -69,19 +69,19 @@ void Camera::update(float deltaTime) {
 
 void Camera::rotate(glm::quat delta) {
 	m_view.rotate(delta);
-	isDirty = true;
+	m_isDirty = true;
 }
 
 void Camera::translate(vec3 delta)
 {
 	m_view.translateInModel(delta);
-	isDirty = true;
+	m_isDirty = true;
 }
 
 void Camera::translateWorld(vec3 delta)
 {
 	m_view.translateInWorld(delta);
-	isDirty = true;
+	m_isDirty = true;
 }
 
 void Camera::setViewFor(vec3 position, glm::quat orientation) {
@@ -91,12 +91,12 @@ void Camera::setViewFor(vec3 position, glm::quat orientation) {
 
 void Camera::setOrientation(glm::quat orientation) {
 	m_view.setOrientation(orientation);
-	isDirty = true;
+	m_isDirty = true;
 }
 
 void Camera::setPosition(vec3 position) {
 	m_view.setPosition(position);
-	isDirty = true;
+	m_isDirty = true;
 }
 vec3 Camera::getPosition()
 {
@@ -114,14 +114,14 @@ mat4 Camera::getProjection() {
 void Camera::setProjection(mat4 projection)
 {
 	m_projection = projection;
-	isDirty = true;
+	m_isDirty = true;
 }
 
 mat4 Camera::getPvMatrix()
 {
-	if (isDirty) {
+	if (m_isDirty) {
 		m_projectedView = getProjection() * getView().getMatrix();
-		isDirty = false;
+		m_isDirty = false;
 	}
 	
 	return m_projectedView;

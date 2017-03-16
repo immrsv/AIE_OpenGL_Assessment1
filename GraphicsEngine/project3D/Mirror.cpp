@@ -55,7 +55,7 @@ Camera& Mirror::reflect(Transform* mirror, Transform* camera) {
 
 	if (runOnce) std::cout << "Mirror Reflection Camera Posn : " << glm::to_string(result.getPosition()) << std::endl;
 	if (runOnce) std::cout << "Mirror Reflection Camera Direction : " << glm::to_string(result.getView().getMatrix() * vec4(-Transform::vOut,0)) << std::endl;
-	if (runOnce) std::cout << "Mirror Reflection Camera Orientation : " << glm::to_string(glm::eulerAngles(result.GetOrientation())) << std::endl;
+	if (runOnce) std::cout << "Mirror Reflection Camera Orientation : " << glm::to_string(glm::eulerAngles(result.getOrientation())) << std::endl;
 
 	// Configure Frustum
 	glm::vec4 topRight = glm::vec4((Transform::vUp + Transform::vRight) * vec3(m_size, 0) / 2.0f, 1); // Model Space
@@ -82,17 +82,17 @@ Camera& Mirror::reflect(Transform* mirror, Transform* camera) {
 }
 
 void Mirror::Init() {
-	m_buffer.Init(1024,1024);
-	//m_buffer.SetViewport(2048,1024);
+	m_buffer.init(1024,1024);
+	//m_buffer.setViewport(2048,1024);
 	buildQuad();
 }
 
-void Mirror::Begin() {
-	m_buffer.Begin();
+void Mirror::begin() {
+	m_buffer.begin();
 }
 
-void Mirror::End() {
-	m_buffer.End();
+void Mirror::end() {
+	m_buffer.end();
 }
 
 void Mirror::draw() {

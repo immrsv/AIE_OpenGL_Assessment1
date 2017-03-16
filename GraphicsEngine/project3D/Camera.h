@@ -27,7 +27,7 @@ public:
 
 	void setViewFor(vec3 position, glm::quat orientation);
 	void setOrientation(glm::quat orientation);
-	glm::quat GetOrientation() { return m_view.getOrientation(); }
+	glm::quat getOrientation() { return m_view.getOrientation(); }
 	void setPosition(vec3 position);
 	vec3 getPosition();
 
@@ -37,7 +37,7 @@ public:
 	mat4 getPvMatrix();
 	
 private:
-	bool isDirty;
+	bool m_isDirty;
 	
 	Transform m_view;
 	mat4 m_projection;

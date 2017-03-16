@@ -57,6 +57,7 @@ void Gui::draw() {
 			SceneEntity* entity = Scene::instance->GetEntity(gui_entityIdx);
 			_mapEntity(entity);
 
+			ImGui::Checkbox("Draw Entity", &entity->m_enabled);
 			ImGui::SliderFloat("Animation Speed", &entity->m_animSpeed, 0.0f, 3.0f); // Direct mode
 
 			if (ImGui::CollapsingHeader("Model Transform")) {

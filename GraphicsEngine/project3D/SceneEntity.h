@@ -36,14 +36,18 @@ public:
 	
 	Transform* GetTransform();
 
-	void Update(float deltaTime);
-	bool isOffScreen(glm::mat4& mvp);
-
 	float m_timestep;
 	float m_animSpeed;
+	bool m_enabled;
+
 
 	glm::vec3 drift = glm::vec3();
 	glm::quat spin = glm::quat();
+
+	void Update(float deltaTime);
+	bool isOffScreen(glm::mat4& mvp);
+
+
 
 private:
 	Transform* m_transform;
