@@ -251,3 +251,5 @@ paket-files/
 .idea/
 *.sln.iml
 /GraphicsEngine/resources/imgui.ini
+/GraphicsEngine_src.zip
+/GraphicsEngine_bin.zip
